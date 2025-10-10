@@ -31,6 +31,7 @@ namespace Services
                     ProductId = i.Product.ProductId,
                     ProductName = i.Product.Name,
                     i.Quantity,
+                    ImgUrl = i.Product.ImageUrl
                     //Product = i.Product
                 })
             };
@@ -69,6 +70,7 @@ namespace Services
                     ProductId = i.Product.ProductId,
                     ProductName = i.Product.Name,
                     i.Quantity,
+                    ImgUrl = i.Product.ImageUrl
                 })
             };
         }
@@ -92,6 +94,7 @@ namespace Services
                     ProductId = i.Product.ProductId,
                     ProductName = i.Product.Name,
                     i.Quantity,
+                    ImgUrl = i.Product.ImageUrl
                 })
             };
         }
@@ -124,6 +127,7 @@ namespace Services
                     ProductId = i.Product.ProductId,
                     ProductName = i.Product.Name,
                     i.Quantity,
+                    ImgUrl = i.Product.ImageUrl
                 })
             };
         }
