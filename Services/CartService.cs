@@ -17,32 +17,36 @@ namespace Services
             _repo = repo;
         }
 
-        public object? GetUserCart(int userId)
+        //public object? GetUserCart(int userId)
+        //{
+        //    var cart = _repo.GetCartByUserId(userId);
+        //    if (cart == null) return null;
+
+        //    return new
+        //    {
+        //        cart.CartId,
+        //        Items = cart.Items.Select(i => new
+        //        {
+        //            ProductId = i.Product.ProductId,
+        //            ProductName = i.Product.Name,
+        //            i.Quantity,
+        //            ImgUrl = i.Product.ImageUrl
+        //        })
+        //    };
+        //}
+        public async Task<Cart> GetUserCart(int userId)
         {
-            var cart = _repo.GetCartByUserId(userId);
+            var cart = await _repo.GetCartByUserId(userId);
             if (cart == null) return null;
 
-            return new
-            {
-                cart.CartId,
-                Items = cart.Items.Select(i => new
-                {
-                    //i.CartItemId,
-                    ProductId = i.Product.ProductId,
-                    ProductName = i.Product.Name,
-                    i.Quantity,
-                    ImgUrl = i.Product.ImageUrl
-                    //Product = i.Product
-                })
-            };
+            return cart;
         }
-
         //public CartItem AddToCart(int userId, int productId, int quantity)
-        public object? AddToCart(int userId, int productId, int quantity)
+        public async Task<Cart> AddToCart(int userId, int productId, int quantity)
         {
-            var cart = _repo.GetCartByUserId(userId);
+            var cart = await _repo.GetCartByUserId(userId);
 
-            var item = _repo.GetCartItem(cart.CartId, productId);
+            var item = await _repo.GetCartItem(cart.CartId, productId);
             if (item == null)
             {
                 item = new CartItem
@@ -60,50 +64,30 @@ namespace Services
             }
 
             _repo.Save();
-            var updatedCart = _repo.GetCartByUserId(userId);
+            var updatedCart = await _repo.GetCartByUserId(userId);
 
-            return new
-            {
-                updatedCart.CartId,
-                Items = updatedCart.Items.Select(i => new
-                {
-                    ProductId = i.Product.ProductId,
-                    ProductName = i.Product.Name,
-                    i.Quantity,
-                    ImgUrl = i.Product.ImageUrl
-                })
-            };
+            return updatedCart;
         }
-        public object? RemoveFromCart(int userId, int productId)
+        public async Task<Cart> RemoveFromCart(int userId, int productId)
         {
-            var cart = _repo.GetCartByUserId(userId);
+            var cart = await _repo.GetCartByUserId(userId);
             if (cart == null) return null;
 
-            var item = _repo.GetCartItem(cart.CartId, productId);
+            var item = await _repo.GetCartItem(cart.CartId, productId);
             if (item == null) return null;
 
             _repo.RemoveCartItem(item);
             _repo.Save();
 
-            var updatedCart = _repo.GetCartByUserId(userId);
-            return new
-            {
-                updatedCart.CartId,
-                Items = updatedCart.Items.Select(i => new
-                {
-                    ProductId = i.Product.ProductId,
-                    ProductName = i.Product.Name,
-                    i.Quantity,
-                    ImgUrl = i.Product.ImageUrl
-                })
-            };
+            var updatedCart = await _repo.GetCartByUserId(userId);
+            return updatedCart;
         }
-        public object? UpdateCartItem(int userId, int productId, int newQuantity)
+        public async Task<Cart> UpdateCartItem(int userId, int productId, int newQuantity)
         {
-            var cart = _repo.GetCartByUserId(userId);
+            var cart = await _repo.GetCartByUserId(userId);
             if (cart == null) return null;
 
-            var item = _repo.GetCartItem(cart.CartId, productId);
+            var item = await _repo.GetCartItem(cart.CartId, productId);
             if (item == null) return null;
 
             if (newQuantity <= 0)
@@ -118,18 +102,8 @@ namespace Services
 
             _repo.Save();
 
-            var updatedCart = _repo.GetCartByUserId(userId);
-            return new
-            {
-                updatedCart.CartId,
-                Items = updatedCart.Items.Select(i => new
-                {
-                    ProductId = i.Product.ProductId,
-                    ProductName = i.Product.Name,
-                    i.Quantity,
-                    ImgUrl = i.Product.ImageUrl
-                })
-            };
+            var updatedCart = await _repo.GetCartByUserId(userId);
+            return updatedCart;
         }
 
     }

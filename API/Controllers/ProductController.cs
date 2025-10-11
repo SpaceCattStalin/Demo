@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using API.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using Repositories.Entities;
 using Repositories.Repositories;
@@ -17,50 +18,39 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [ProducesResponseType(typeof(List<ProductDto>), StatusCodes.Status200OK)]
+
+        public async Task<ActionResult<List<ProductDto>>> GetAll()
         {
             var products = await _productRepo.GetAll();
 
-            return Ok(products);
+            var result = products.Select(p => new ProductDto
+            {
+                ProductId = p.ProductId,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                ImageUrl = p.ImageUrl
+            }).ToList();
+
+            return Ok(result);
         }
+
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+        public async Task<ActionResult<ProductDto>> GetById(int id)
         {
             var product = await _productRepo.GetById(id);
-            return Ok(product);
+            var result = new ProductDto
+            {
+                ProductId = product.ProductId,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                ImageUrl = product.ImageUrl
+            };
+
+            return Ok(result);
         }
-        //[HttpPost]
-        //public async Task<IActionResult> Create([FromBody] Product product)
-        //{
-        //    await _productRepo.Add(product);
-        //    return Ok(product);
-        //}
-
-        //// ✏️ PUT: /products/{id}
-        //[HttpPut("{id}")]
-        //public async Task<IActionResult> Update(int id, [FromBody] Product updatedProduct)
-        //{
-        //    var product = await _productRepo.GetById(id);
-        //    if (product == null) return NotFound("Product không tồn tại.");
-
-        //    product.Name = updatedProduct.Name;
-        //    product.Description = updatedProduct.Description;
-        //    product.Price = updatedProduct.Price;
-        //    product.ImageUrl = updatedProduct.ImageUrl;
-
-        //    await _productRepo.Update(product);
-        //    return Ok(product);
-        //}
-
-        //// ❌ DELETE: /products/{id}
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    var product = await _productRepo.GetById(id);
-        //    if (product == null) return NotFound("Product không tồn tại.");
-
-        //    await _productRepo.Delete(product);
-        //    return Ok(new { Message = "Xóa sản phẩm thành công." });
-        //}
     }
 }

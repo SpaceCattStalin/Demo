@@ -10,8 +10,8 @@ namespace Repositories.Repositories
 {
     public interface ICartRepository
     {
-        Cart? GetCartByUserId(int userId);
-        CartItem? GetCartItem(int cartId, int productId);
+        Task<Cart?> GetCartByUserId(int userId);
+        Task<CartItem?> GetCartItem(int cartId, int productId);
         void AddCartItem(CartItem item);
         void UpdateCartItem(CartItem item);
         void RemoveCartItem(CartItem item);
@@ -28,18 +28,18 @@ namespace Repositories.Repositories
             _context = context;
         }
 
-        public Cart? GetCartByUserId(int userId)
+        public async Task<Cart?> GetCartByUserId(int userId)
         {
-            return _context.Carts
+            return await _context.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.Product)
-                .FirstOrDefault(c => c.UserId == userId);
+                .FirstOrDefaultAsync(c => c.UserId == userId);
         }
 
-        public CartItem? GetCartItem(int cartId, int productId)
+        public async Task<CartItem?> GetCartItem(int cartId, int productId)
         {
-            return _context.CartItems
-                .FirstOrDefault(i => i.CartId == cartId && i.ProductId == productId);
+            return await _context.CartItems
+                .FirstOrDefaultAsync(i => i.CartId == cartId && i.ProductId == productId);
         }
 
         public void AddCartItem(CartItem item)
@@ -61,5 +61,6 @@ namespace Repositories.Repositories
         {
             _context.CartItems.Remove(item);
         }
+
     }
 }
