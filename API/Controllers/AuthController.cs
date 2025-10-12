@@ -48,7 +48,7 @@ namespace API.Controllers
                     new Claim(JwtRegisteredClaimNames.Sub, systemUserAccount.UserId.ToString()),
                     new(ClaimTypes.Email, systemUserAccount.Email),
                     },
-                    expires: DateTime.Now.AddMinutes(120),
+                    expires: DateTime.Now.AddMinutes(3),
                     signingCredentials: credentials
                 );
 
