@@ -19,7 +19,7 @@ namespace API.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(List<ProductDto>), StatusCodes.Status200OK)]
-
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<ProductDto>>> GetAll()
         {
             var products = await _productRepo.GetAll();
@@ -38,6 +38,8 @@ namespace API.Controllers
 
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+
         public async Task<ActionResult<ProductDto>> GetById(int id)
         {
             var product = await _productRepo.GetById(id);
