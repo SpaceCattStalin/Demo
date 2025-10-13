@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services;
+using Services.DTOs;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -96,37 +97,54 @@ namespace API.Controllers
             }
         }
 
-        [HttpPut("update")]
-        [ProducesResponseType(typeof(CartDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CartDto>> UpdateQuantity([FromBody] CartItemRequestDto item)
+        //[HttpPut("update")]
+        //[ProducesResponseType(typeof(CartDto), StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //public async Task<ActionResult<CartDto>> UpdateQuantity([FromBody] CartItemRequestDto item)
+        //{
+        //    try
+        //    {
+        //        var updatedCart = await _service.UpdateCartItem(UserId, item.ProductId, item.Quantity);
+
+        //        if (updatedCart == null)
+        //        {
+        //            return NotFound("Product not found in cart to update");
+        //        }
+
+        //        var cartDto = _mapper.MapCartToDto(updatedCart);
+        //        return Ok(cartDto);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception
+        //        return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while updating the quantity.");
+        //    }
+        //}
+        [HttpPut("update-items")]
+        public async Task<ActionResult<CartDto>> UpdateCartItems([FromBody] List<CartItemRequestDto> items)
         {
             try
             {
-                var updatedCart = await _service.UpdateCartItem(UserId, item.ProductId, item.Quantity);
+                var updatedCart = await _service.UpdateCartItems(UserId, items);
 
                 if (updatedCart == null)
-                {
-                    return NotFound("Product not found in cart to update");
-                }
+                    return NotFound("Cart not found");
 
                 var cartDto = _mapper.MapCartToDto(updatedCart);
                 return Ok(cartDto);
             }
             catch (Exception ex)
             {
-                // Log the exception
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while updating the quantity.");
             }
         }
+
     }
 
-    // It's a good practice to create a DTO for the request body
-    // This DTO can be placed in your API.DTOs namespace
-    public class CartItemRequestDto
-    {
-        public int ProductId { get; set; }
-        public int Quantity { get; set; }
-    }
+    //public class CartItemRequestDto
+    //{
+    //    public int ProductId { get; set; }
+    //    public int Quantity { get; set; }
+    //}
 }

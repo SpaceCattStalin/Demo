@@ -1,5 +1,7 @@
-﻿using Repositories.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Repositories.Entities;
 using Repositories.Repositories;
+using Services.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,6 +107,14 @@ namespace Services
             var updatedCart = await _repo.GetCartByUserId(userId);
             return updatedCart;
         }
+
+        public async Task<Cart?> UpdateCartItems(int userId, List<CartItemRequestDto> items)
+        {
+            var productQuantities = items.ToDictionary(i => i.ProductId, i => i.Quantity);
+
+            return await _repo.UpdateCartItems(userId, productQuantities);
+        }
+
 
     }
 }

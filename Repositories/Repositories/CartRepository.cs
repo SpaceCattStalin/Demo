@@ -15,7 +15,7 @@ namespace Repositories.Repositories
         void AddCartItem(CartItem item);
         void UpdateCartItem(CartItem item);
         void RemoveCartItem(CartItem item);
-
+        Task<Cart?> UpdateCartItems(int userId, Dictionary<int, int> productQuantities);
         void Save();
     }
 
@@ -62,5 +62,25 @@ namespace Repositories.Repositories
             _context.CartItems.Remove(item);
         }
 
+        public async Task<Cart?> UpdateCartItems(int userId, Dictionary<int, int> productQuantities)
+        {
+            var cart = await _context.Carts
+                   .Include(c => c.Items)
+                   .ThenInclude(i => i.Product)
+                   .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (cart == null) return null;
+
+            foreach (var item in cart.Items)
+            {
+                if (productQuantities.TryGetValue(item.ProductId, out var newQty))
+                {
+                    item.Quantity = newQty;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return cart;
+        }
     }
 }
