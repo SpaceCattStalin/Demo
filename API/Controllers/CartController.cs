@@ -97,30 +97,6 @@ namespace API.Controllers
             }
         }
 
-        //[HttpPut("update")]
-        //[ProducesResponseType(typeof(CartDto), StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        //public async Task<ActionResult<CartDto>> UpdateQuantity([FromBody] CartItemRequestDto item)
-        //{
-        //    try
-        //    {
-        //        var updatedCart = await _service.UpdateCartItem(UserId, item.ProductId, item.Quantity);
-
-        //        if (updatedCart == null)
-        //        {
-        //            return NotFound("Product not found in cart to update");
-        //        }
-
-        //        var cartDto = _mapper.MapCartToDto(updatedCart);
-        //        return Ok(cartDto);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the exception
-        //        return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while updating the quantity.");
-        //    }
-        //}
         [HttpPut("update-items")]
         public async Task<ActionResult<CartDto>> UpdateCartItems([FromBody] List<CartItemRequestDto> items)
         {

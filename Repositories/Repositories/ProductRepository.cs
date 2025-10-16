@@ -27,10 +27,10 @@ namespace Repositories.Repositories
             return await _context.Products.FindAsync(id);
         }
 
-        public async Task Add(Product product)
+        public async Task<int> CreateAsync(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            _context.Add(product);
+            return await _context.SaveChangesAsync();
         }
 
         public async Task Update(Product product)
