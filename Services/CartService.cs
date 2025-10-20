@@ -1,6 +1,6 @@
-﻿using Repositories.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Repositories.Entities;
 using Repositories.UnitOfWorks;
-using Services.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -19,6 +19,5 @@ namespace Repositories.Repositories
         {
             return await _context.Carts.Where(c => c.UsersId == userId).Include(p => p.Product).ToListAsync();
         }
-
     }
 }
