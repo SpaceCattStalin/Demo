@@ -25,6 +25,17 @@ namespace Services
             return cart;
         }
 
+        //Lấy thông tin chi tiết sản phẩm trong giỏ hàng theo cartId
+        public async Task<Cart?> GetCartByIdAsync(int cartId, int userId)
+        {
+            var cart = await _unitOfWork.CartRepository.GetByIdAsync(cartId);
+            if (cart == null || cart.UsersId != userId)
+            {
+                return null;
+            }
+            return cart;
+        }
+
         //Sản phẩm đã có trong giỏ hàng hay chưa
         public async Task<bool> IsProductInCartAsync(int productId, int userId)
         {

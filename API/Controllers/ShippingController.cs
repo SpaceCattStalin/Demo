@@ -34,5 +34,19 @@ namespace API.Controllers
             }
             return Ok("tạo thônng tin vận chuyển thành công");
         }
+
+        //Lấy thông tin chi tiết vận chuyển theo orderId
+        [Authorize]
+        [HttpGet("{orderId}")]
+        public async Task<IActionResult> GetDetailShippingByShippingId(int orderId)
+        {
+            var shipping = await _shippingService.GetShippingByIdAsync(orderId);
+            if (shipping == null)
+            {
+                return NotFound("Không tìm thấy thông tin vận chuyển");
+            }
+            var shippingModel = _mapper.Map<ShippingModel>(shipping);
+            return Ok(shippingModel);
+        }
     }
 }
