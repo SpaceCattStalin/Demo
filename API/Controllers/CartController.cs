@@ -36,6 +36,23 @@ namespace API.Controllers
             return Ok(cartModels);
         }
 
+        //Xem thông tin chi tiết sản phẩm trong giỏ hàng theo cartId
+        [Authorize]
+        [HttpGet("{cartId}")]
+        public async Task<IActionResult> GetDetailCartByCartId(int cartId)
+        {
+            var userPrincipal = HttpContext.User;
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdClaim.Value);
+            var cart = await _cartService.GetCartByIdAsync(cartId, userId);
+            if (cart == null)
+            {
+                return NotFound("Không tìm thấy giỏ hàng");
+            }
+            var productModel = _mapper.Map<ProductModel>(cart.Product);
+            return Ok(productModel);
+        }
+
         //Thêm sản phẩm vào giỏ hàng của người dùng
         [Authorize]
         [HttpPost("add/{productId}")]

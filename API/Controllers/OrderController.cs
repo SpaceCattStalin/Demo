@@ -21,6 +21,16 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
+        //Lấy thông tin đơn hàng theo orderId
+        [Authorize]
+        [HttpGet("{orderId}")]
+        public IActionResult GetDetailOrderByOrderId(int orderId)
+        {
+            var order =  _orderService.GetOrderByIdAsync(orderId).Result;
+            var orderModel = _mapper.Map<OrderModel>(order);
+            return Ok(orderModel);
+        }
+
         //Lấy tất cả đơn hàng của người dùng theo userId
         [Authorize]
         [HttpGet("all")]
