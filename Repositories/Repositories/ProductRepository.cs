@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Repositories.Basic;
 using Repositories.Entities;
 using System;
 using System.Collections.Generic;
@@ -8,41 +9,15 @@ using System.Threading.Tasks;
 
 namespace Repositories.Repositories
 {
-    public class ProductRepository
+    public class ProductRepository : GenericRepository<Product>
     {
-        private readonly ApplicationDbContext _context;
-
-        public ProductRepository(ApplicationDbContext context)
+        public ProductRepository(DemoDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public async Task<List<Product>> GetAll()
+        public async Task<Product> GetProductByIdAsync(int productId)
         {
-            return await _context.Products.ToListAsync();
-        }
-
-        public async Task<Product?> GetById(int id)
-        {
-            return await _context.Products.FindAsync(id);
-        }
-
-        public async Task Add(Product product)
-        {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task Update(Product product)
-        {
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task Delete(Product product)
-        {
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
+            return await _context.Products.FirstOrDefaultAsync(p => p.Id == productId);
         }
     }
 }

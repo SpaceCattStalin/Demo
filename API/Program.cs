@@ -1,10 +1,13 @@
+﻿using API.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories;
 using Repositories.Repositories;
+using Repositories.UnitOfWorks;
 using Services;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -20,11 +23,28 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 });
 builder.AddInfrastructureServices();
 
-builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<ProductRepository>();
-builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<CartRepository>();
+builder.Services.AddScoped<DiscountCodeRepository>();
+builder.Services.AddScoped<OrderRepository>();
+builder.Services.AddScoped<UserDiscountCodeRepository>();
+builder.Services.AddScoped<ShippingRepository>();
+builder.Services.AddScoped<PaymentRepository>();
+
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<PaymentService>();
+
+
+builder.Services.AddScoped<Seeder>();
+builder.Services.AddHttpContextAccessor();
+
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -63,7 +83,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddSwaggerGen(option =>
 {
-    ////JWT Config
     option.DescribeAllParametersInCamelCase();
     option.ResolveConflictingActions(conf => conf.First());
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -91,17 +110,32 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//builder.Services.AddSwaggerGen();
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(options =>
+//    {
+//        options.LoginPath = "/auth/login";
+//    });
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddDbContext<DemoDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 
 var app = builder.Build();
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
-}
+//using (var scope = app.Services.CreateScope())
+//{
+//    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+//    dbContext.Database.Migrate();
+//}
 // Configure the HTTP request pipeline.
+
+var scope = app.Services.CreateScope();
+var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
+await seeder.Seed();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

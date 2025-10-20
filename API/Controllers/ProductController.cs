@@ -1,58 +1,77 @@
-﻿using API.DTOs;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Repositories;
 using Repositories.Entities;
-using Repositories.Repositories;
+using Services;
 
 namespace API.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("products")]
-    public class ProductController : Controller
+    public class ProductController : ControllerBase
     {
-        private readonly ProductRepository _productRepo;
-
-        public ProductController(ProductRepository productRepository)
+        private readonly ProductService _productService;
+        private readonly IMapper _mapper;
+        public ProductController(ProductService productService, IMapper mapper)
         {
-            _productRepo = productRepository;
+            _productService = productService;
+            _mapper = mapper;
         }
 
+        //Lấy tất cả sản phẩm
         [HttpGet]
-        [ProducesResponseType(typeof(List<ProductDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductDto>>> GetAll()
+        public async Task<IActionResult> GetAllProducts()
         {
-            var products = await _productRepo.GetAll();
+            var products = await _productService.GetAllProductsAsync();
 
-            var result = products.Select(p => new ProductDto
-            {
-                ProductId = p.ProductId,
-                Name = p.Name,
-                Description = p.Description,
-                Price = p.Price,
-                ImageUrl = p.ImageUrl
-            }).ToList();
-
-            return Ok(result);
+            var productModels = _mapper.Map<IEnumerable<Product>>(products);
+            return Ok(productModels);
         }
 
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-
-        public async Task<ActionResult<ProductDto>> GetById(int id)
+        //Lấy sản phẩm theo productId
+        [HttpGet("{productId}")]
+        public async Task<IActionResult> GetProductById(int productId)
         {
-            var product = await _productRepo.GetById(id);
-            var result = new ProductDto
+            var product = await _productService.GetProductByIdAsync(productId);
+            if (product == null)
             {
-                ProductId = product.ProductId,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                ImageUrl = product.ImageUrl
-            };
+                return NotFound();
+            }
 
-            return Ok(result);
+            var productModel = _mapper.Map<Product>(product);
+            return Ok(productModel);
+        }
+
+        //Thêm sản phẩm mới
+        [Authorize (Roles = "Admin")]
+        [HttpPost]
+        public async Task<IActionResult> AddProduct([FromBody] Product product)
+        {
+            await _productService.AddProductAsync(product);
+            return CreatedAtAction(nameof(GetProductById), new { productId = product.Id }, product);
+        }
+
+        //Cập nhật sản phẩm
+        [Authorize (Roles = "Admin")]
+        [HttpPut("{productId}")]
+        public async Task<IActionResult> UpdateProduct(int productId, [FromBody] Repositories.Entities.Product product)
+        {
+            if (productId != product.Id)
+            {
+                return BadRequest();
+            }
+            await _productService.UpdateProductAsync(product);
+            return NoContent();
+        }
+
+        //Xóa sản phẩm
+        [Authorize (Roles = "Admin")]
+        [HttpDelete("{productId}")]
+        public async Task<IActionResult> DeleteProduct(int productId)
+        {
+            await _productService.DeleteProductAsync(productId);
+            return NoContent();
         }
     }
 }

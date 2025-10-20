@@ -1,5 +1,5 @@
-﻿
-using Repositories.Entities;
+﻿using Repositories.Entities;
+using Repositories.UnitOfWorks;
 
 namespace Services
 {
@@ -12,19 +12,9 @@ namespace Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<User> GetUserAccount(string username, string password)
+        public async Task<User?> GetUserByCredentials(string email, string password)
         {
-            try
-            {
-                //var user = await _respository.GetUser(username, password);
-                var user = await _unitOfWork.SystemUserAccountRepository.GetUserAsync(username, password);
-
-                return user;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error login", ex);
-            }
+            return await _unitOfWork.UserRepository.GetUserByEmailPasswordAsync(email, password);
         }
     }
 }

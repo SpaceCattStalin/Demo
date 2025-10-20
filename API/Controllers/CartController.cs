@@ -1,132 +1,83 @@
-﻿using API.DTOs;
-using API.MapperHelper;
+﻿using API.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Repositories.Entities;
 using Services;
-using System;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace API.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("cart")]
-    [Authorize]
-    public class CartController : Controller
+    public class CartController : ControllerBase
     {
-        private readonly CartService _service;
-        private readonly Mapper _mapper;
-
-        // A private property to get the user ID, avoiding code repetition.
-        private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-        public CartController(CartService service)
+        private readonly CartService _cartService;
+        private readonly IMapper _mapper;
+        public CartController(CartService cartService, IMapper mapper)
         {
-            _service = service;
-            _mapper = new Mapper();
+            _cartService = cartService;
+            _mapper = mapper;
         }
 
-        [HttpGet]
-        [ProducesResponseType(typeof(CartDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CartDto>> GetUserCart()
+        //Lấy tất cả giỏ hàng của người dùng theo userId
+        [Authorize]
+        [HttpGet("all")]
+        public async Task<IActionResult> GetCartsByUserId()
         {
-            try
-            {
-                var cart = await _service.GetUserCart(UserId);
+            var userPrincipal = HttpContext.User;
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdClaim.Value);
+            var carts = await _cartService.GetAllCartsByUserIdAsync(userId);
 
-                if (cart == null)
-                {
-                    return NotFound("Cart not found");
-                }
+            var cartModels = _mapper.Map<IEnumerable<Cart>, IEnumerable<CartModel>>(carts);
 
-                // Use the mapper for consistency
-                var cartDto = _mapper.MapCartToDto(cart);
-                return Ok(cartDto);
-            }
-            catch (Exception ex)
-            {
-                // In a real application, you should log the exception details (ex.ToString())
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while retrieving the cart.");
-            }
+            return Ok(cartModels);
         }
 
-        [HttpPost("add")]
-        [ProducesResponseType(typeof(CartDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CartDto>> AddToCart([FromBody] CartItemRequestDto item)
+        //Thêm sản phẩm vào giỏ hàng của người dùng
+        [Authorize]
+        [HttpPost("add/{productId}")]
+        public async Task<IActionResult> AddProductToCart(int productId)
         {
-            try
-            {
-                var cart = await _service.AddToCart(UserId, item.ProductId, item.Quantity);
-                var cartDto = _mapper.MapCartToDto(cart);
-                return Ok(cartDto);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while adding the item.");
-            }
+            var userPrincipal = HttpContext.User;
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdClaim.Value);
+            await _cartService.AddProductToCartAsync(productId, userId);
+            return Ok();
         }
 
-        [HttpDelete("remove/{productId}")]
-        [ProducesResponseType(typeof(CartDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CartDto>> RemoveFromCart(int productId)
+        //Cập nhật số lượng sản phẩm trong giỏ hàng của người dùng
+        [Authorize]
+        [HttpPut("update/{cartId}/{quantity}")]
+        public async Task<IActionResult> UpdateCartQuantity(int cartId, int quantity)
         {
-            try
+            var userPrincipal = HttpContext.User;
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdClaim.Value);
+            var isSuccess = await _cartService.UpdateProductQuantityInCartAsync(cartId, quantity, userId);
+            if (!isSuccess)
             {
-                var updatedCart = await _service.RemoveFromCart(UserId, productId);
-
-                if (updatedCart == null)
-                {
-                    return NotFound("Item not found in cart");
-                }
-
-                var cartDto = _mapper.MapCartToDto(updatedCart);
-                return Ok(cartDto);
+                return Forbid("Số lượng sản phẩm vượt quá số lượng có sẵn");
             }
-            catch (Exception ex)
-            {
-                // Log the exception
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while removing the item.");
-            }
+            return Ok("Cập nhật thành công");
         }
 
-        [HttpPut("update")]
-        [ProducesResponseType(typeof(CartDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<CartDto>> UpdateQuantity([FromBody] CartItemRequestDto item)
+        //Xoá sản phẩm khỏi giỏ hàng của người dùng
+        [Authorize]
+        [HttpDelete("delete/{cartId}")]
+        public async Task<IActionResult> DeleteProductFromCart(int cartId)
         {
-            try
+            var userPrincipal = HttpContext.User;
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdClaim.Value);
+            var isSuccess = await _cartService.RemoveProductFromCartAsync(cartId, userId);
+            if (!isSuccess)
             {
-                var updatedCart = await _service.UpdateCartItem(UserId, item.ProductId, item.Quantity);
-
-                if (updatedCart == null)
-                {
-                    return NotFound("Product not found in cart to update");
-                }
-
-                var cartDto = _mapper.MapCartToDto(updatedCart);
-                return Ok(cartDto);
+                return Forbid();
             }
-            catch (Exception ex)
-            {
-                // Log the exception
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred while updating the quantity.");
-            }
+            return Ok();
         }
-    }
-
-    // It's a good practice to create a DTO for the request body
-    // This DTO can be placed in your API.DTOs namespace
-    public class CartItemRequestDto
-    {
-        public int ProductId { get; set; }
-        public int Quantity { get; set; }
     }
 }

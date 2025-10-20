@@ -1,0 +1,17 @@
+﻿using Repositories.Basic;
+using Repositories.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Repositories.Repositories
+{
+    public class UserDiscountCodeRepository : GenericRepository<UsersDiscountCode>
+    {
+        public UserDiscountCodeRepository(DemoDbContext context) : base(context)
+        {
+        }
+    }
+}

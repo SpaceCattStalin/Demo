@@ -1,14 +1,25 @@
-﻿namespace Repositories.Entities
+﻿using System;
+using System.Collections.Generic;
+
+namespace Repositories.Entities;
+
+public partial class Cart
 {
-    public class Cart
-    {
-        public int CartId { get; set; }              // Primary Key
+    public int Id { get; set; }
 
-        // Foreign Keys
-        public int UserId { get; set; }
+    public int UsersId { get; set; }
 
-        // Navigation Properties
-        public User User { get; set; } = null!;
-        public ICollection<CartItem> Items { get; set; } = new List<CartItem>();
-    }
+    public int ProductId { get; set; }
+
+    public int Quantity { get; set; }
+
+    public decimal Amount { get; set; }
+
+    public int? OrdersId { get; set; }
+
+    public virtual Order? Orders { get; set; }
+
+    public virtual Product Product { get; set; } = null!;
+
+    public virtual User Users { get; set; } = null!;
 }
