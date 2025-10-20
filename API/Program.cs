@@ -41,6 +41,7 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<ShippingService>();
 
 
 builder.Services.AddScoped<Seeder>();
