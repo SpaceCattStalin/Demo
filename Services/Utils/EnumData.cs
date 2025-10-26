@@ -26,4 +26,14 @@
         Delivered,      // Đã giao hàng
         Failed,         // Giao hàng thất bại
     }
+
+    public enum ImageTypeEnum
+    {
+        Front = 1,    // Mặt trước
+        Back = 2,     // Mặt sau
+        Side = 3,     // Mặt bên
+        Top = 4,      // Nhìn từ trên
+        Bottom = 5,   // Đế / đáy
+        Detail = 6    // Ảnh cận cảnh (logo, chất liệu…)
+    }
 }

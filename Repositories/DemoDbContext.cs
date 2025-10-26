@@ -25,7 +25,12 @@ namespace Repositories
 
         public virtual DbSet<Payment> Payments { get; set; }
 
+        public virtual DbSet<Category> Categories { get; set; }
+
         public virtual DbSet<Product> Products { get; set; }
+        public virtual DbSet<ProductVariant> ProductVariants { get; set; }
+        public virtual DbSet<ProductImage> ProductImages { get; set; }
+        public virtual DbSet<ImageType> ImageTypes { get; set; }
 
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
@@ -39,6 +44,7 @@ namespace Repositories
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // ---------------- CART ----------------
             modelBuilder.Entity<Cart>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__Cart__3214EC074C214C3E");
@@ -62,6 +68,7 @@ namespace Repositories
                     .HasConstraintName("FKCart661383");
             });
 
+            // ---------------- DISCOUNT CODE ----------------
             modelBuilder.Entity<DiscountCode>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__Discount__3214EC076EA21809");
@@ -74,6 +81,7 @@ namespace Repositories
                 entity.Property(e => e.Value).HasColumnType("decimal(10, 2)");
             });
 
+            // ---------------- ORDER ----------------
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__Orders__3214EC0725F77EBC");
@@ -89,6 +97,7 @@ namespace Repositories
                     .HasConstraintName("FKOrders336570");
             });
 
+            // ---------------- PAYMENT ----------------
             modelBuilder.Entity<Payment>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__Payment__3214EC07B7C873C2");
@@ -109,20 +118,89 @@ namespace Repositories
                     .HasConstraintName("FKPayment927541");
             });
 
+            // ---------------- PRODUCT ----------------
             modelBuilder.Entity<Product>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__Product__3214EC072751BF49");
 
                 entity.ToTable("Product");
 
-                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+                //entity.Property(e => e.CreatedDate).HasColumnType("datetime");
                 entity.Property(e => e.Description).HasMaxLength(255);
-                entity.Property(e => e.ImageUrl).IsUnicode(false);
                 entity.Property(e => e.Name).HasMaxLength(255);
                 entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
-                entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+                //entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+                entity.Property(e => e.CreatedAt).HasColumnType("int");
+                entity.Property(e => e.UpdatedAt).HasColumnType("int");
             });
 
+            // ---------------- PRODUCT VARIANT ----------------
+            modelBuilder.Entity<ProductVariant>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__ProductVariant");
+
+                entity.ToTable("ProductVariant");
+
+                entity.Property(e => e.VariantCode).HasMaxLength(50);
+                entity.Property(e => e.Color).HasMaxLength(10);
+                entity.Property(e => e.Size).HasMaxLength(10);
+                entity.Property(e => e.CreatedAt).HasColumnType("int");
+                entity.Property(e => e.UpdatedAt).HasColumnType("int");
+
+                entity.HasMany(v => v.Images)
+                      .WithOne(i => i.ProductVariant)
+                      .HasForeignKey(i => i.ProductVariantId)
+                      .HasConstraintName("FK_ProductImage_ProductVariant");
+            });
+
+            // ---------------- PRODUCT IMAGE ----------------
+            modelBuilder.Entity<ProductImage>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_ProductImage");
+
+                entity.ToTable("ProductImage");
+
+                entity.Property(e => e.Url)
+                      .IsRequired()
+                      .HasMaxLength(200);
+                entity.Property(e => e.CreatedAt).HasColumnType("int");
+                entity.Property(e => e.UpdatedAt).HasColumnType("int");
+
+                entity.HasOne(i => i.Product)
+                      .WithMany(p => p.Images)
+                      .HasForeignKey(i => i.MainProductId)
+                      .HasConstraintName("FK_ProductImage_Product");
+
+                entity.HasOne(i => i.ProductVariant)
+                      .WithMany(v => v.Images)
+                      .HasForeignKey(i => i.ProductVariantId)
+                      .HasConstraintName("FK_ProductImage_ProductVariant");
+
+                entity.HasOne(i => i.ImageType)
+                      .WithMany()
+                      .HasForeignKey(i => i.ImageTypeId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .HasConstraintName("FK_ProductImage_ImageType");
+            });
+
+            // ---------------- IMAGE TYPE ----------------
+            modelBuilder.Entity<ImageType>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK_ImageType");
+
+                entity.ToTable("ImageType");
+
+                entity.Property(e => e.Code)
+                      .HasMaxLength(20)
+                      .IsUnicode(false)
+                      .IsRequired();
+
+                entity.Property(e => e.Name)
+                      .HasMaxLength(100)
+                      .IsRequired();
+            });
+
+            // ---------------- REFRESH TOKEN ----------------
             modelBuilder.Entity<RefreshToken>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__RefreshT__3214EC0720F03FBF");
@@ -141,6 +219,7 @@ namespace Repositories
                     .HasConstraintName("FKRefreshTok382511");
             });
 
+            // ---------------- ROLE ----------------
             modelBuilder.Entity<Role>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__Role__3214EC078D93600C");
@@ -152,6 +231,7 @@ namespace Repositories
                     .IsUnicode(false);
             });
 
+            // ---------------- SHIPPING ----------------
             modelBuilder.Entity<Shipping>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__Shipping__3214EC07193B379B");
@@ -169,6 +249,7 @@ namespace Repositories
                     .HasConstraintName("FKShipping479047");
             });
 
+            // ---------------- USER ----------------
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07253DC382");
@@ -192,9 +273,10 @@ namespace Repositories
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKUsers969682");
 
-                
+
             });
 
+            // ---------------- USER DISCOUNT CODE ----------------
             modelBuilder.Entity<UsersDiscountCode>(entity =>
             {
                 entity.HasKey(e => new { e.UsersId, e.DiscountCodeId }).HasName("PK__Users_Di__15BAA66E5D867B73");
@@ -210,6 +292,29 @@ namespace Repositories
                     .HasForeignKey(d => d.UsersId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKUsers_Disc661265");
+            });
+
+            // ---------------- CATEGORY ----------------
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__Category__3214EC07XXXXXX");
+
+                entity.ToTable("Category");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(e => e.Code)
+                    .HasMaxLength(20)
+                    .IsUnicode(false)
+                    .IsRequired();
+
+                entity.HasMany(c => c.Products)
+                    .WithOne(p => p.Category)
+                    .HasForeignKey(c => c.CategoryId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_Product_Category");
             });
 
             OnModelCreatingPartial(modelBuilder);

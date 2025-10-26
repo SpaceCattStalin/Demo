@@ -92,7 +92,7 @@ namespace Services
                 if (cart.Quantity < 1)
                 {
                     cart.Quantity = 1;
-                } 
+                }
                 else if (cart.Quantity > cart.Product.StockQuantity)
                 {
                     return false;

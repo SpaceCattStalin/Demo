@@ -57,6 +57,37 @@ namespace Repositories.Migrations
                     b.ToTable("Cart", (string)null);
                 });
 
+            modelBuilder.Entity("Repositories.Entities.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("CreatedAt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("UpdatedAt")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__Category__3214EC07XXXXXX");
+
+                    b.ToTable("Category", (string)null);
+                });
+
             modelBuilder.Entity("Repositories.Entities.DiscountCode", b =>
                 {
                     b.Property<int>("Id")
@@ -86,6 +117,31 @@ namespace Repositories.Migrations
                         .HasName("PK__Discount__3214EC076EA21809");
 
                     b.ToTable("DiscountCode", (string)null);
+                });
+
+            modelBuilder.Entity("Repositories.Entities.ImageType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id")
+                        .HasName("PK_ImageType");
+
+                    b.ToTable("ImageType", (string)null);
                 });
 
             modelBuilder.Entity("Repositories.Entities.Order", b =>
@@ -165,18 +221,16 @@ namespace Repositories.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime");
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CreatedAt")
+                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
@@ -192,109 +246,104 @@ namespace Repositories.Migrations
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime");
+                    b.Property<int>("UpdatedAt")
+                        .HasColumnType("int");
 
                     b.HasKey("Id")
                         .HasName("PK__Product__3214EC072751BF49");
 
-                    b.ToTable("Product", (string)null);
+                    b.HasIndex("CategoryId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1445),
-                            Description = "Chuột không dây RGB",
-                            ImageUrl = "http://localhost:5140/Images/chuot_gaming.jpg",
-                            IsAvailable = false,
-                            Name = "Chuột Gaming",
-                            Price = 350000.00m,
-                            StockQuantity = 50
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1532),
-                            Description = "Bàn phím cơ Blue Switch",
-                            ImageUrl = "http://localhost:5140/Images/ban_him_co.png",
-                            IsAvailable = false,
-                            Name = "Bàn phím Cơ",
-                            Price = 950000.00m,
-                            StockQuantity = 30
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1578),
-                            Description = "Tai nghe chống ồn",
-                            ImageUrl = "http://localhost:5140/Images/tai_nghe.jpg",
-                            IsAvailable = false,
-                            Name = "Tai nghe Bluetooth",
-                            Price = 500000.00m,
-                            StockQuantity = 75,
-                            UpdatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1579)
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1744),
-                            Description = "Màn hình Full HD 144Hz",
-                            ImageUrl = "http://localhost:5140/Images/man_hinh.jpg",
-                            IsAvailable = false,
-                            Name = "Màn hình 24 inch",
-                            Price = 3200000.00m,
-                            StockQuantity = 20,
-                            UpdatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1744)
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1746),
-                            Description = "Laptop i5 8GB RAM",
-                            ImageUrl = "http://localhost:5140/Images/laptop.jpg",
-                            IsAvailable = false,
-                            Name = "Laptop Văn phòng",
-                            Price = 15000000.00m,
-                            StockQuantity = 15,
-                            UpdatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1747)
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1748),
-                            Description = "Webcam call 1080p",
-                            ImageUrl = "http://localhost:5140/Images/webcam.jpg",
-                            IsAvailable = false,
-                            Name = "Webcam HD",
-                            Price = 420000.00m,
-                            StockQuantity = 60,
-                            UpdatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1749)
-                        },
-                        new
-                        {
-                            Id = 7,
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1750),
-                            Description = "Loa mini di động",
-                            ImageUrl = "http://localhost:5140/Images/loa.jpg",
-                            IsAvailable = false,
-                            Name = "Loa Bluetooth",
-                            Price = 380000.00m,
-                            StockQuantity = 85,
-                            UpdatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1750)
-                        },
-                        new
-                        {
-                            Id = 8,
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1752),
-                            Description = "USB 3.0 tốc độ cao",
-                            ImageUrl = "http://localhost:5140/Images/usb.jpg",
-                            IsAvailable = false,
-                            Name = "USB 64GB",
-                            Price = 180000.00m,
-                            StockQuantity = 100,
-                            UpdatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 289, DateTimeKind.Utc).AddTicks(1752)
-                        });
+                    b.ToTable("Product", (string)null);
+                });
+
+            modelBuilder.Entity("Repositories.Entities.ProductImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CreatedAt")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ImageTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCategory")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MainProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductVariantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UpdatedAt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id")
+                        .HasName("PK_ProductImage");
+
+                    b.HasIndex("ImageTypeId");
+
+                    b.HasIndex("MainProductId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.ToTable("ProductImage", (string)null);
+                });
+
+            modelBuilder.Entity("Repositories.Entities.ProductVariant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("CreatedAt")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("UpdatedAt")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VariantCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__ProductVariant");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductVariant", (string)null);
                 });
 
             modelBuilder.Entity("Repositories.Entities.RefreshToken", b =>
@@ -349,18 +398,6 @@ namespace Repositories.Migrations
                         .HasName("PK__Role__3214EC078D93600C");
 
                     b.ToTable("Role", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "User"
-                        });
                 });
 
             modelBuilder.Entity("Repositories.Entities.Shipping", b =>
@@ -449,32 +486,6 @@ namespace Repositories.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Address = "123 Admin Street",
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 292, DateTimeKind.Utc).AddTicks(2266),
-                            Email = "admin@example.com",
-                            Name = "Admin User",
-                            Password = "123",
-                            Phone = "0901234567",
-                            RoleId = 1,
-                            UpdatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 292, DateTimeKind.Utc).AddTicks(2386)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Address = "456 User Avenue",
-                            CreatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 292, DateTimeKind.Utc).AddTicks(2469),
-                            Email = "user@example.com",
-                            Name = "Test User",
-                            Password = "123",
-                            Phone = "0987654321",
-                            RoleId = 2,
-                            UpdatedDate = new DateTime(2025, 10, 17, 9, 5, 5, 292, DateTimeKind.Utc).AddTicks(2470)
-                        });
                 });
 
             modelBuilder.Entity("Repositories.Entities.UsersDiscountCode", b =>
@@ -544,6 +555,52 @@ namespace Repositories.Migrations
                     b.Navigation("IdNavigation");
                 });
 
+            modelBuilder.Entity("Repositories.Entities.Product", b =>
+                {
+                    b.HasOne("Repositories.Entities.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Product_Category");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Repositories.Entities.ProductImage", b =>
+                {
+                    b.HasOne("Repositories.Entities.ImageType", "ImageType")
+                        .WithMany()
+                        .HasForeignKey("ImageTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProductImage_ImageType");
+
+                    b.HasOne("Repositories.Entities.Product", "Product")
+                        .WithMany("Images")
+                        .HasForeignKey("MainProductId")
+                        .HasConstraintName("FK_ProductImage_Product");
+
+                    b.HasOne("Repositories.Entities.ProductVariant", "ProductVariant")
+                        .WithMany("Images")
+                        .HasForeignKey("ProductVariantId")
+                        .HasConstraintName("FK_ProductImage_ProductVariant");
+
+                    b.Navigation("ImageType");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductVariant");
+                });
+
+            modelBuilder.Entity("Repositories.Entities.ProductVariant", b =>
+                {
+                    b.HasOne("Repositories.Entities.Product", null)
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Repositories.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Repositories.Entities.User", "Users")
@@ -596,6 +653,11 @@ namespace Repositories.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("Repositories.Entities.Category", b =>
+                {
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("Repositories.Entities.DiscountCode", b =>
                 {
                     b.Navigation("UsersDiscountCodes");
@@ -613,6 +675,15 @@ namespace Repositories.Migrations
             modelBuilder.Entity("Repositories.Entities.Product", b =>
                 {
                     b.Navigation("Carts");
+
+                    b.Navigation("Images");
+
+                    b.Navigation("Variants");
+                });
+
+            modelBuilder.Entity("Repositories.Entities.ProductVariant", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Repositories.Entities.Role", b =>

@@ -15,13 +15,19 @@ public partial class Product
 
     public int StockQuantity { get; set; }
 
-    public DateTime CreatedDate { get; set; }
+    //public DateTime CreatedDate { get; set; }
 
-    public string ImageUrl { get; set; } = null!;
+    //public DateTime? UpdatedDate { get; set; }
 
-    public DateTime? UpdatedDate { get; set; }
+    public int CreatedAt { get; set; }
+    public int UpdatedAt { get; set; }
 
     public bool IsAvailable { get; set; }
 
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+
+    public int? CategoryId { get; set; }
+    public Category Category { get; set; }
+    public ICollection<ProductVariant> Variants { get; set; }
+    public ICollection<ProductImage> Images { get; set; }
 }

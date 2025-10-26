@@ -10,6 +10,7 @@ using Repositories;
 using Repositories.Repositories;
 using Repositories.UnitOfWorks;
 using Services;
+using Services.Mappings;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -35,6 +36,7 @@ builder.Services.AddScoped<UserDiscountCodeRepository>();
 builder.Services.AddScoped<ShippingRepository>();
 builder.Services.AddScoped<PaymentRepository>();
 
+
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProductService>();
@@ -43,6 +45,10 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<ShippingService>();
 
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddProfile<MappingProfile>();
+});
 
 builder.Services.AddScoped<Seeder>();
 builder.Services.AddHttpContextAccessor();
@@ -112,7 +118,7 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 //    .AddCookie(options =>
 //    {
