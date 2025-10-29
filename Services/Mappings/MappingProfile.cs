@@ -22,6 +22,11 @@ namespace Services.Mappings
             // ProductVariant → ProductVariantDto
             CreateMap<ProductVariant, ProductVariantDto>();
 
+            // ProductVariantDto → ProductVariant
+            CreateMap<AddProductVariantDto, ProductVariant>();
+
+            CreateMap<UpdateProductVariantDto, ProductVariant>().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             // ProductImage → ProductImageDto
             CreateMap<ProductImage, ProductImageDto>()
                 .ForMember(dest => dest.ImageTypeCode,

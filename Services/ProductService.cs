@@ -73,5 +73,43 @@ namespace Services
                 dtoItems, result.CurrentPage, result.PageSize, result.TotalItems
             );
         }
+
+        public async Task<PaginationResult<ProductDto>> GetAllProductsPaging(
+            int currentPage, int pageSize)
+        {
+            var result = await _unitOfWork.ProductRepository
+                .GetAllProductsPaging(currentPage, pageSize);
+            var dtoItems = _mapper.Map<List<ProductDto>>(result.Items);
+            return new PaginationResult<ProductDto>(
+                dtoItems, result.CurrentPage, result.PageSize, result.TotalItems
+            );
+        }
+
+        public async Task<bool> AddProductVariantAsync(int productId, List<AddProductVariantDto> addProductVariantDtos)
+        {
+            var productVariants = _mapper.Map<List<ProductVariant>>(addProductVariantDtos);
+            var createdVariant = await _unitOfWork.ProductRepository.AddVariants(productId, productVariants);
+            return createdVariant > 0;
+        }
+
+        public async Task<bool> UpdateProductVariantAsync(int productId, UpdateProductVariantDto updateProductVariantDto)
+        {
+            var productVariant = _mapper.Map<ProductVariant>(updateProductVariantDto);
+            var updatedVariant = await _unitOfWork.ProductRepository.UpdateVariant(productId,productVariant);
+            return updatedVariant > 0;
+        }
+
+        public async Task<bool> DeleteProductVariantAsync(int productId, int variantId)
+        {
+            var deletedVariant = await _unitOfWork.ProductRepository.DeleteVariant(productId, variantId);
+            return deletedVariant;
+        }
+
+        public async Task<IEnumerable<ProductVariantDto>> GetProductVariantsAsync(int productId)
+        {
+            var variants = await _unitOfWork.ProductRepository.GetVariantsByProductId(productId);
+            var dtoVariants = _mapper.Map<List<ProductVariantDto>>(variants);
+            return dtoVariants;
+        }
     }
 }
