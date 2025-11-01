@@ -47,8 +47,8 @@ namespace Repositories.Repositories
 
                 var items = await query
                             .OrderByDescending(p => p.CreatedDate)
-                            .Take(filter.PageSize)
                             .Skip((filter.CurrentPage - 1) * filter.PageSize)
+                            .Take(filter.PageSize)
                             .ToListAsync();
 
                 return new PaginationResult<Payment>
