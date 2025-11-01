@@ -1,0 +1,27 @@
+﻿services:
+  api:
+    container_name: demo_api
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=DemoDB;User Id=sa;Password=YourStrong(!)Passw0rd;TrustServerCertificate=True;
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: demo_sql
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "YourStrong(!)Passw0rd"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:

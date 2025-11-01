@@ -23,7 +23,7 @@ namespace Services
         }
 
         // Lấy danh sách shipping có lọc, phân trang
-        public async Task<PaginationResult<Shipping>> GetAllShippingsAsync(AdminOrderFilterRequest filter)
+        public async Task<PaginationResult<Shipping>> GetAllShippingsAsync(DTOs.AdminOrderFilterRequest filter)
         {
             var mappedFilter = _mapper.Map<Repositories.DTOs.AdminOrderFilterRequest>(filter);
 

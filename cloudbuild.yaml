@@ -1,0 +1,12 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      [
+        "build",
+        "-t", "gcr.io/slienttalk/demo-api",
+        "-f", "Dockerfile",
+        "."
+      ]
+
+images:
+  - gcr.io/slienttalk/demo-api

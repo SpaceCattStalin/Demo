@@ -166,8 +166,10 @@ namespace API.Mapper
                 .ForMember(dest => dest.CustomerPhone, opt => opt.MapFrom(src => src.Order.Users.Phone))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => DateTimeOffset
                     .FromUnixTimeSeconds(src.StartDate).ToLocalTime().DateTime))
-                .ForMember(dest => dest.FinishDate, opt => opt.MapFrom(src => DateTimeOffset
-                    .FromUnixTimeSeconds(src.FinishDate.Value).ToLocalTime().DateTime))
+                .ForMember(dest => dest.FinishDate,
+                    opt => opt.MapFrom(src => src.FinishDate.HasValue
+                        ? DateTimeOffset.FromUnixTimeSeconds(src.FinishDate.Value).ToLocalTime().DateTime
+                        : (DateTime?)null))
                 .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Order.Total))
                 .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.Order.Items));
 

@@ -55,6 +55,7 @@ namespace Services.Mappings
             CreateMap<DTOs.AdminOrderFilterRequest, Repositories.DTOs.AdminOrderFilterRequest>();
             CreateMap<DTOs.UserOrderFilterRequest, Repositories.DTOs.UserOrderFilterRequest>();
             CreateMap<DTOs.ProductFilterRequest, Repositories.DTOs.ProductFilterRequest>();
+
         }
     }
 }
