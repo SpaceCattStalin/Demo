@@ -46,18 +46,26 @@ namespace Services
             user.IsActive = true;
             user.RoleId = 2;
             var numberUserValid = await _unitOfWork.UserRepository.CreateAsync(user);
-            
+
             return numberUserValid > 0;
         }
 
         //Cập nhật thông tin người dùng
         public async Task<bool> UpdateUserAsync(User user)
         {
-            var numberChange = await _unitOfWork.UserRepository.UpdateAsync(user);
-            if (numberChange == 0)
-            {
+            var existingUser = await _unitOfWork.UserRepository.GetByIdAsync(user.Id);
+
+            if (existingUser == null)
                 return false;
-            }
+
+            existingUser.Name = user.Name;
+            existingUser.Email = user.Email;
+            existingUser.Phone = user.Phone;
+            existingUser.Birthday = user.Birthday;
+            existingUser.Address = user.Address;
+            existingUser.UpdatedDate = DateTime.Now;
+
+            await _unitOfWork.UserRepository.UpdateAsync(existingUser);
             return true;
         }
     }

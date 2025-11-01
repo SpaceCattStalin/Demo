@@ -1,9 +1,11 @@
-﻿using API.Seeders;
+﻿using API.Converter;
+using API.Seeders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repositories;
@@ -12,6 +14,7 @@ using Repositories.UnitOfWorks;
 using Services;
 using Services.Mappings;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +38,9 @@ builder.Services.AddScoped<OrderRepository>();
 builder.Services.AddScoped<UserDiscountCodeRepository>();
 builder.Services.AddScoped<ShippingRepository>();
 builder.Services.AddScoped<PaymentRepository>();
+builder.Services.AddScoped<CategoryRepository>();
+builder.Services.AddScoped<ProductImageRepository>();
+builder.Services.AddScoped<ProductVariantRepository>();
 
 
 builder.Services.AddScoped<AuthService>();
@@ -44,6 +50,7 @@ builder.Services.AddScoped<CartService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<ShippingService>();
+builder.Services.AddScoped<CategoryService>();
 
 builder.Services.AddAutoMapper(cfg =>
 {
@@ -117,6 +124,16 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
+builder.Services.AddControllers()
+    .AddJsonOptions(opt =>
+    {
+        opt.JsonSerializerOptions.DefaultIgnoreCondition =
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+        opt.JsonSerializerOptions.Converters.Add(
+         new System.Text.Json.Serialization.JsonStringEnumConverter());
+        opt.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
+
+    });
 
 builder.Services.AddSwaggerGen();
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -133,16 +150,22 @@ builder.Services.AddDbContext<DemoDbContext>(options =>
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 
 var app = builder.Build();
-//using (var scope = app.Services.CreateScope())
-//{
-//    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-//    dbContext.Database.Migrate();
-//}
+
 // Configure the HTTP request pipeline.
 
-var scope = app.Services.CreateScope();
-var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
-await seeder.Seed();
+//var scope = app.Services.CreateScope();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<DemoDbContext>();
+    dbContext.Database.Migrate();
+
+    var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
+    await seeder.Seed();
+}
+
+//var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
+//await seeder.Seed();
 
 if (app.Environment.IsDevelopment())
 {

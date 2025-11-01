@@ -14,6 +14,7 @@
         Processing,     // Đang xử lý đơn hàng
         Shipping,       // Đang vận chuyển
         Success,        // Thanh toán thành công
+        Delivered,      // Đã giao  
         Failed,         // Thanh toán thất bại
         Cancelled,      // Giao dịch bị hủy
         Expired         // Giao dịch hết hạn

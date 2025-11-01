@@ -18,12 +18,16 @@ namespace Repositories
         }
 
         public virtual DbSet<Cart> Carts { get; set; }
+        public virtual DbSet<CartItem> CartItems { get; set; }
 
         public virtual DbSet<DiscountCode> DiscountCodes { get; set; }
 
         public virtual DbSet<Order> Orders { get; set; }
 
         public virtual DbSet<Payment> Payments { get; set; }
+        public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
+
+        public virtual DbSet<CategoryImage> CategoryImages { get; set; }
 
         public virtual DbSet<Category> Categories { get; set; }
 
@@ -39,6 +43,8 @@ namespace Repositories
         public virtual DbSet<Shipping> Shippings { get; set; }
 
         public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Size> Sizes { get; set; }
+        public virtual DbSet<ProductSize> ProductSizes { get; set; }
 
         public virtual DbSet<UsersDiscountCode> UsersDiscountCodes { get; set; }
 
@@ -51,21 +57,43 @@ namespace Repositories
 
                 entity.ToTable("Cart");
 
-                entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
+                //entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
 
-                entity.HasOne(d => d.Orders).WithMany(p => p.Carts)
-                    .HasForeignKey(d => d.OrdersId)
-                    .HasConstraintName("FKCart841263");
+                //entity.HasOne(d => d.Orders).WithMany(p => p.Carts)
+                //    .HasForeignKey(d => d.OrdersId)
+                //    .HasConstraintName("FKCart841263");
 
-                entity.HasOne(d => d.Product).WithMany(p => p.Carts)
-                    .HasForeignKey(d => d.ProductId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FKCart557549");
+                entity.HasMany(c => c.Items)
+                    .WithOne(i => i.Cart)
+                    .HasForeignKey(i => i.CartId)
+                    .HasConstraintName("FK__Cart_CartItem");
 
                 entity.HasOne(d => d.Users).WithMany(p => p.Carts)
                     .HasForeignKey(d => d.UsersId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKCart661383");
+            });
+            // ---------------- CART ITEM ----------------
+            modelBuilder.Entity<CartItem>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__CartItem");
+
+                entity.ToTable("CartItem");
+
+                entity.HasOne(ci => ci.Cart)
+                      .WithMany(c => c.Items)
+                      .HasForeignKey(ci => ci.CartId)
+                      .HasConstraintName("FK_CartItem_Cart");
+
+                entity.HasOne(ci => ci.ProductVariant)
+                      .WithMany()
+                      .HasForeignKey(ci => ci.ProductVariantId)
+                      .HasConstraintName("FK_CartItem_ProductVariant");
+
+                entity.HasOne(ci => ci.Size)
+                      .WithMany()
+                      .HasForeignKey(ci => ci.SizeId)
+                      .HasConstraintName("FK_CartItem_Size");
             });
 
             // ---------------- DISCOUNT CODE ----------------
@@ -86,15 +114,63 @@ namespace Repositories
             {
                 entity.HasKey(e => e.Id).HasName("PK__Orders__3214EC0725F77EBC");
 
-                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+                entity.Property(e => e.CreatedDate).HasColumnType("int");
                 entity.Property(e => e.Status).HasMaxLength(100);
                 entity.Property(e => e.Total).HasColumnType("decimal(10, 2)");
-                entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+                entity.Property(e => e.UpdatedDate).HasColumnType("int");
+
+                entity.HasMany(o => o.Items)
+                    .WithOne(i => i.Order)
+                    .HasForeignKey(i => i.OrderId)
+                    .HasConstraintName("FK__OrderItem_Order");
+
 
                 entity.HasOne(d => d.Users).WithMany(p => p.Orders)
-                    .HasForeignKey(d => d.UsersId)
+                    .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKOrders336570");
+
+                entity.HasMany(o => o.Payments)
+                    .WithOne(p => p.Order)
+                    .HasForeignKey(p => p.OrderId)
+                    .HasConstraintName("FK_Payments_Order");
+            });
+            // ---------------- ORDER ITEM----------------
+            modelBuilder.Entity<OrderItem>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__OrderItem");
+
+                entity.ToTable("OrderItem");
+
+                entity.HasOne(oi => oi.Order)
+                      .WithMany(i => i.Items)
+                      .HasForeignKey(oi => oi.OrderId)
+                      .HasConstraintName("FK__OrderItem_Order");
+
+                entity.HasOne(oi => oi.ProductVariant)
+                      .WithMany()
+                      .HasForeignKey(oi => oi.ProductVariantId)
+                      .HasConstraintName("FK__OrderItem_ProductVariant");
+
+                entity.HasOne(oi => oi.Size)
+                      .WithMany()
+                      .HasForeignKey(oi => oi.SizeId)
+                      .HasConstraintName("FK__OrderItem_Size");
+
+            });
+            // ---------------- PAYMENT METHOD ----------------
+            modelBuilder.Entity<PaymentMethod>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__PaymentMethod");
+                entity.ToTable("PaymentMethod");
+
+                entity.Property(e => e.Code)
+                    .HasMaxLength(20)
+                    .IsRequired();
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(100)
+                    .IsRequired();
             });
 
             // ---------------- PAYMENT ----------------
@@ -104,18 +180,21 @@ namespace Repositories
 
                 entity.ToTable("Payment");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
                 entity.Property(e => e.Amount).HasColumnType("decimal(10, 2)");
-                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-                entity.Property(e => e.ProcessedDate).HasColumnType("datetime");
-                entity.Property(e => e.Status).HasMaxLength(100);
-                entity.Property(e => e.Type).HasMaxLength(100);
-                entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+                entity.Property(e => e.CreatedDate).HasColumnType("int");
+                entity.Property(e => e.ProcessedDate).HasColumnType("int");
+                entity.Property(e => e.Status).HasMaxLength(20);
+                entity.Property(e => e.UpdatedDate).HasColumnType("int");
 
-                entity.HasOne(d => d.IdNavigation).WithOne(p => p.Payment)
-                    .HasForeignKey<Payment>(d => d.Id)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FKPayment927541");
+                entity.HasOne(p => p.Method)
+                      .WithMany(m => m.Payments)
+                      .HasForeignKey(p => p.PaymentMethodId)
+                      .HasConstraintName("FK_Payment_PaymentMethod");
+
+                entity.HasOne(p => p.Order)
+                    .WithMany(o => o.Payments)
+                    .HasForeignKey(p => p.OrderId)
+                    .HasConstraintName("FK_Order_Payments");
             });
 
             // ---------------- PRODUCT ----------------
@@ -126,12 +205,45 @@ namespace Repositories
                 entity.ToTable("Product");
 
                 //entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-                entity.Property(e => e.Description).HasMaxLength(255);
-                entity.Property(e => e.Name).HasMaxLength(255);
+                entity.Property(e => e.Description).HasMaxLength(55).IsRequired(false);
+                entity.Property(e => e.Name).HasMaxLength(55);
                 entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
                 //entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
                 entity.Property(e => e.CreatedAt).HasColumnType("int");
                 entity.Property(e => e.UpdatedAt).HasColumnType("int");
+            });
+
+            // ---------------- SIZE ----------------
+            modelBuilder.Entity<Size>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__Size");
+                entity.ToTable("Size");
+
+                entity.Property(e => e.SizeType).HasMaxLength(20);
+            });
+
+            // ---------------- PRODUCT SIZE ----------------
+            modelBuilder.Entity<ProductSize>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__ProductSize");
+
+                entity.ToTable("ProductSize");
+
+
+                entity.HasOne(ps => ps.Size)
+                    .WithMany(s => s.ProductSize)
+                    .HasForeignKey(ps => ps.SizeId)
+                    .HasConstraintName("FK_ProductSize_Size");
+
+                //entity.HasOne(ps => ps.Product)
+                //    .WithMany(p => p.ProductSize)
+                //    .HasForeignKey(ps => ps.ProductId)
+                //    .HasConstraintName("FK_ProductSize_Product");
+
+                entity.HasOne(ps => ps.ProductVariant)
+                    .WithMany(pv => pv.Sizes)
+                    .HasForeignKey(ps => ps.ProductVariantId)
+                    .HasConstraintName("FK_ProductSize_ProductVariant");
             });
 
             // ---------------- PRODUCT VARIANT ----------------
@@ -143,7 +255,6 @@ namespace Repositories
 
                 entity.Property(e => e.VariantCode).HasMaxLength(50);
                 entity.Property(e => e.Color).HasMaxLength(10);
-                entity.Property(e => e.Size).HasMaxLength(10);
                 entity.Property(e => e.CreatedAt).HasColumnType("int");
                 entity.Property(e => e.UpdatedAt).HasColumnType("int");
 
@@ -222,9 +333,12 @@ namespace Repositories
             // ---------------- ROLE ----------------
             modelBuilder.Entity<Role>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("PK__Role__3214EC078D93600C");
+                entity.HasKey(e => e.RoleId).HasName("PK__Role__3214EC078D93600C");
 
                 entity.ToTable("Role");
+
+                entity.Property(e => e.RoleId)
+                    .ValueGeneratedNever();
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
@@ -237,14 +351,12 @@ namespace Repositories
                 entity.HasKey(e => e.Id).HasName("PK__Shipping__3214EC07193B379B");
 
                 entity.ToTable("Shipping");
+                entity.Property(e => e.FinishDate).HasColumnType("int");
+                entity.Property(e => e.StartDate).HasColumnType("int");
+                entity.Property(e => e.Status).HasMaxLength(20);
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-                entity.Property(e => e.FinishDate).HasColumnType("datetime");
-                entity.Property(e => e.StartDate).HasColumnType("datetime");
-                entity.Property(e => e.Status).HasMaxLength(100);
-
-                entity.HasOne(d => d.IdNavigation).WithOne(p => p.Shipping)
-                    .HasForeignKey<Shipping>(d => d.Id)
+                entity.HasOne(d => d.Order).WithMany(p => p.Shippings)
+                    .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FKShipping479047");
             });
@@ -254,14 +366,14 @@ namespace Repositories
             {
                 entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07253DC382");
 
-                entity.Property(e => e.Address).HasMaxLength(255);
+                entity.Property(e => e.Address).HasMaxLength(50);
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
                 entity.Property(e => e.Email)
-                    .HasMaxLength(255)
+                    .HasMaxLength(50)
                     .IsUnicode(false);
-                entity.Property(e => e.Name).HasMaxLength(100);
+                entity.Property(e => e.Name).HasMaxLength(50);
                 entity.Property(e => e.Password)
-                    .HasMaxLength(255)
+                    .HasMaxLength(50)
                     .IsUnicode(false);
                 entity.Property(e => e.Phone)
                     .HasMaxLength(10)
@@ -297,7 +409,8 @@ namespace Repositories
             // ---------------- CATEGORY ----------------
             modelBuilder.Entity<Category>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("PK__Category__3214EC07XXXXXX");
+                entity.HasKey(e => e.CategoryId).HasName("PK__Category__3214EC07XXXXXX");
+                entity.Property(e => e.CategoryId).ValueGeneratedNever();
 
                 entity.ToTable("Category");
 
@@ -315,7 +428,25 @@ namespace Repositories
                     .HasForeignKey(c => c.CategoryId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_Product_Category");
+
+                entity.HasOne(c => c.Image)
+                    .WithOne(i => i.Category)
+                    .HasForeignKey<CategoryImage>(i => i.CategoryId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_CategoryImage_Category");
             });
+
+            // ---------------- CATEGORY ----------------
+            modelBuilder.Entity<CategoryImage>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__CategoryImage__3214EC07");
+
+                entity.ToTable("CategoryImage");
+
+                entity.Property(e => e.Url)
+                    .HasMaxLength(200);
+            });
+
 
             OnModelCreatingPartial(modelBuilder);
         }

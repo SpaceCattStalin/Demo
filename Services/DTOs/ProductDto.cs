@@ -1,5 +1,25 @@
-﻿namespace Services.DTOs
+﻿using System.ComponentModel;
+
+namespace Services.DTOs
 {
+    public class ProductFilterRequest
+    {
+        public required int CategoryId { get; set; }
+        public string? Keyword { get; set; }
+        public decimal? MinPrice { get; set; }
+        public decimal? MaxPrice { get; set; }
+
+        [DefaultValue(1)]
+        public int CurrentPage { get; set; } = 1;
+        [DefaultValue(10)]
+
+        public int PageSize { get; set; } = 20;
+
+        // Sorting
+        //public string? SortBy { get; set; } = "CreatedAt";
+        public bool IsDescending { get; set; } = true;
+    }
+
     public class ProductDto
     {
         public int Id { get; set; }
@@ -33,4 +53,12 @@
         public int SortOrder { get; set; }
         public string ImageTypeCode { get; set; }
     }
+
+    public class ProductSizeDto
+    {
+        public int StockQuantity { get; set; }
+        public string Size { get; set; }
+    }
+
+
 }

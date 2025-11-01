@@ -15,9 +15,38 @@ namespace Repositories.Repositories
         {
         }
 
-        public async Task<IEnumerable<Cart>> GetCartsByUserIdAsync(int userId)
+        public async Task<int> CreateCart(int userId)
         {
-            return await _context.Carts.Where(c => c.UsersId == userId).Include(p => p.Product).ToListAsync();
+            var cart = new Cart
+            {
+                UsersId = userId,
+            };
+
+            await _context.Carts.AddAsync(cart);
+
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<Cart> GetCart(int userId)
+        {
+            return await _context.Carts.FirstOrDefaultAsync(cart => cart.UsersId == userId);
+        }
+        public async Task<Cart> GetCartsByUserIdAsync(int userId)
+        {
+            return await _context.Carts
+                .Include(c => c.Items)
+                    .ThenInclude(i => i.ProductVariant)
+                        .ThenInclude(v => v.Product)
+                .Include(c => c.Items)
+                    .ThenInclude(i => i.ProductVariant)
+                        .ThenInclude(v => v.Sizes)
+                            .ThenInclude(ps => ps.Size)
+                .Include(c => c.Items)
+                    .ThenInclude(i => i.ProductVariant)
+                        .ThenInclude(v => v.Images)
+                .Include(c => c.Items)
+                    .ThenInclude(i => i.Size)
+                    .FirstOrDefaultAsync(c => c.UsersId == userId);
         }
     }
 }

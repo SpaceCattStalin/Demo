@@ -1,5 +1,8 @@
-﻿using Repositories.Entities;
+﻿using AutoMapper;
+using Repositories.Basic;
+using Repositories.Entities;
 using Repositories.UnitOfWorks;
+using Services.DTOs;
 using Services.Utils;
 using System;
 using System.Collections.Generic;
@@ -12,9 +15,25 @@ namespace Services
     public class ShippingService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ShippingService(IUnitOfWork unitOfWork)
+        private readonly IMapper _mapper;
+        public ShippingService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
+        }
+
+        // Lấy danh sách shipping có lọc, phân trang
+        public async Task<PaginationResult<Shipping>> GetAllShippingsAsync(AdminOrderFilterRequest filter)
+        {
+            var mappedFilter = _mapper.Map<Repositories.DTOs.AdminOrderFilterRequest>(filter);
+
+            return await _unitOfWork.ShippingRepository.GetAllWithFilter(mappedFilter);
+        }
+
+        // Xem chi tiết shipping
+        public async Task<Shipping?> GetShippingDetailAsync(int id)
+        {
+            return await _unitOfWork.ShippingRepository.GetDetailAsync(id);
         }
 
         //Lấy tất cả thông tin vận chuyển của hệ thống
@@ -32,9 +51,11 @@ namespace Services
             {
                 return false;
             }
-            shippingInfo.IdNavigation = order;
+            int now = (int)DateTimeOffset.Now.ToUnixTimeSeconds();
+
+            shippingInfo.Order = order;
             shippingInfo.Status = ShippingStatusEnum.Pending.ToString();
-            shippingInfo.StartDate = DateTime.Now;
+            shippingInfo.StartDate = now;
             var numberShippingValid = await _unitOfWork.ShippingRepository.CreateAsync(shippingInfo);
 
             return numberShippingValid > 0;
@@ -43,13 +64,15 @@ namespace Services
         //Cập nhật trạng thái "đang vận chuyển" cho đơn hàng
         public async Task<bool> UpdateShippingStatusAsync(int shippingId)
         {
+            int now = (int)DateTimeOffset.Now.ToUnixTimeSeconds();
+
             var shipping = await _unitOfWork.ShippingRepository.GetByIdAsync(shippingId);
             if (shipping == null)
             {
                 return false;
             }
             shipping.Status = ShippingStatusEnum.Shipping.ToString();
-            shipping.StartDate = DateTime.Now;
+            shipping.StartDate = now;
             var numberShippingValid = await _unitOfWork.ShippingRepository.UpdateAsync(shipping);
 
             return numberShippingValid > 0;
@@ -63,8 +86,10 @@ namespace Services
             {
                 return false;
             }
+            int now = (int)DateTimeOffset.Now.ToUnixTimeSeconds();
+
             shipping.Status = Services.Utils.ShippingStatusEnum.Delivered.ToString();
-            shipping.FinishDate = DateTime.Now;
+            shipping.FinishDate = now;
             var numberShippingValid = await _unitOfWork.ShippingRepository.UpdateAsync(shipping);
             return numberShippingValid > 0;
         }

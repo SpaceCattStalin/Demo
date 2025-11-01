@@ -12,10 +12,11 @@ public partial class Shipping
     public string StartAddress { get; set; } = null!;
 
     public string EndAddress { get; set; } = null!;
+    public int CreatedDate { get; set; }
+    public int StartDate { get; set; }
 
-    public DateTime StartDate { get; set; }
+    public int? FinishDate { get; set; }
+    public int OrderId { get; set; }
 
-    public DateTime? FinishDate { get; set; }
-
-    public virtual Order IdNavigation { get; set; } = null!;
+    public virtual Order Order { get; set; } = null!;
 }

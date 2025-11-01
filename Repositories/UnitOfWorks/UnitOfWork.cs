@@ -9,11 +9,17 @@ namespace Repositories.UnitOfWorks
         UserRepository UserRepository { get; }
         CartRepository CartRepository { get; }
         ProductRepository ProductRepository { get; }
+        ProductVariantRepository ProductVariantRepository { get; }
         DiscountCodeRepository DiscountCodeRepository { get; }
         OrderRepository OrderRepository { get; }
         UserDiscountCodeRepository UserDiscountCodeRepository { get; }
         ShippingRepository ShippingRepository { get; }
         PaymentRepository PaymentRepository { get; }
+        CategoryRepository CategoryRepository { get; }
+        ProductImageRepository ProductImageRepository { get; }
+        int SaveChangesWithTransaction();
+        Task<int> SaveChangesWithTransactionAsync();
+
     }
     public class UnitOfWork : IUnitOfWork
     {
@@ -22,11 +28,15 @@ namespace Repositories.UnitOfWorks
         public UserRepository UserRepository { get; private set; }
         public CartRepository CartRepository { get; private set; }
         public ProductRepository ProductRepository { get; private set; }
+        public ProductImageRepository ProductImageRepository { get; private set; }
         public DiscountCodeRepository DiscountCodeRepository { get; private set; }
         public OrderRepository OrderRepository { get; private set; }
         public UserDiscountCodeRepository UserDiscountCodeRepository { get; private set; }
         public ShippingRepository ShippingRepository { get; private set; }
         public PaymentRepository PaymentRepository { get; private set; }
+        public CategoryRepository CategoryRepository { get; private set; }
+
+        public ProductVariantRepository ProductVariantRepository { get; private set; }
 
         public UnitOfWork(
             DemoDbContext context,
@@ -37,7 +47,10 @@ namespace Repositories.UnitOfWorks
             OrderRepository orderRepository,
             UserDiscountCodeRepository userDiscountCodeRepository,
             ShippingRepository shippingRepository,
-            PaymentRepository paymentRepository
+            PaymentRepository paymentRepository,
+            CategoryRepository categoryRepository,
+            ProductVariantRepository productVariantRepository,
+            ProductImageRepository productImageRepository
             )
         {
             _context = context;
@@ -49,6 +62,9 @@ namespace Repositories.UnitOfWorks
             UserDiscountCodeRepository = userDiscountCodeRepository;
             ShippingRepository = shippingRepository;
             PaymentRepository = paymentRepository;
+            CategoryRepository = categoryRepository;
+            ProductVariantRepository = productVariantRepository;
+            ProductImageRepository = productImageRepository;
         }
 
         public int SaveChangesWithTransaction()

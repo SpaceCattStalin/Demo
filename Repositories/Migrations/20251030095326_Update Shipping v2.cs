@@ -5,34 +5,34 @@
 namespace Repositories.Migrations
 {
     /// <inheritdoc />
-    public partial class ModifyVariantcode : Migration
+    public partial class UpdateShippingv2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "VariantCode",
-                table: "ProductVariant",
-                type: "nvarchar(50)",
-                maxLength: 50,
+                name: "Status",
+                table: "Shipping",
+                type: "nvarchar(20)",
+                maxLength: 20,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(10)",
-                oldMaxLength: 10);
+                oldType: "nvarchar(100)",
+                oldMaxLength: 100);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "VariantCode",
-                table: "ProductVariant",
-                type: "nvarchar(10)",
-                maxLength: 10,
+                name: "Status",
+                table: "Shipping",
+                type: "nvarchar(100)",
+                maxLength: 100,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "nvarchar(50)",
-                oldMaxLength: 50);
+                oldType: "nvarchar(20)",
+                oldMaxLength: 20);
         }
     }
 }

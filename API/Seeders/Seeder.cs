@@ -23,11 +23,24 @@ namespace API.Seeders
                     dbContext.Users.AddRange(users);
                     await dbContext.SaveChangesAsync();
                 }
+                if (!dbContext.Sizes.Any())
+                {
+                    var sizes = GetSizes();
+                    dbContext.Sizes.AddRange(sizes);
+                    await dbContext.SaveChangesAsync();
+                }
 
                 if (!dbContext.Categories.Any())
                 {
                     var categories = GetCategories();
                     dbContext.Categories.AddRange(categories);
+                    await dbContext.SaveChangesAsync();
+                }
+
+                if (!dbContext.CategoryImages.Any())
+                {
+                    var categoryImages = GetCategoryImages();
+                    dbContext.CategoryImages.AddRange(categoryImages);
                     await dbContext.SaveChangesAsync();
                 }
 
@@ -38,10 +51,24 @@ namespace API.Seeders
                     await dbContext.SaveChangesAsync();
                 }
 
+                if (!dbContext.PaymentMethods.Any())
+                {
+                    var paymentMethods = GetPaymentMethods();
+                    dbContext.PaymentMethods.AddRange(paymentMethods);
+                    await dbContext.SaveChangesAsync();
+                }
+
                 if (!dbContext.Products.Any())
                 {
                     var products = GetPrimaryProducts();
                     dbContext.Products.AddRange(products);
+                    await dbContext.SaveChangesAsync();
+                }
+
+                if (!dbContext.ProductSizes.Any())
+                {
+                    var productSizes = GetProductSizes();
+                    dbContext.ProductSizes.AddRange(productSizes);
                     await dbContext.SaveChangesAsync();
                 }
             }
@@ -50,8 +77,8 @@ namespace API.Seeders
         {
             return new List<Role>
             {
-                new() { Name = "Admin" },
-                new() { Name = "User" },
+                new() { RoleId = 1,Name = "Admin" },
+                new() { RoleId = 2, Name = "User" },
             };
         }
 
@@ -61,7 +88,7 @@ namespace API.Seeders
             {
                 new User
                 {
-                    RoleId = 2,
+                    RoleId = 1,
                     Name = "admin",
                     Email = "admin@example.com",
                     Password = "123",
@@ -72,7 +99,7 @@ namespace API.Seeders
                 },
                 new User
                 {
-                    RoleId = 3,
+                    RoleId = 2,
                     Name = "user",
                     Email = "user@example.com",
                     Password = "123",
@@ -84,43 +111,80 @@ namespace API.Seeders
             };
         }
 
+        private IEnumerable<CategoryImage> GetCategoryImages()
+        {
+            return new List<CategoryImage>
+            {
+                new CategoryImage
+                {
+                    CategoryId = 1,
+                    Url = "/Images/Categories/vi_photo_shoot_1.jpg"
+                },
+                new CategoryImage
+                {
+                    CategoryId = 2,
+                    Url = "/Images/Categories/that_lung_photo_shoot_1.jpg"
+                },
+                new CategoryImage
+                {
+                    CategoryId = 3,
+                    Url = "/Images/Categories/tui_photo_shoot_1.jpg"
+                },
+                new CategoryImage
+                {
+                    CategoryId = 4,
+                    Url = "/Images/Categories/tat_photo_shoot_1.jpg"
+                },
+                new CategoryImage
+                {
+                    CategoryId = 5,
+                    Url = "/Images/Categories/ca_vat_photo_shoot_1.jpg"
+                },
+                new CategoryImage
+                {
+                    CategoryId = 6,
+                    Url = "/Images/Categories/giay_photo_shoot_1.jpg"
+                },
+            };
+        }
+
         private IEnumerable<Category> GetCategories()
         {
             return new List<Category>
             {
                 new Category
                 {
-                    //Id = 1,
+                    CategoryId = 1,
                     Name = "Ví",
                     Code = "VI",
                 },
                 new Category
                 {
-                    //Id = 2,
+                    CategoryId = 2,
                     Name = "Thắt lưng",
                     Code = "THL"
                 },
                 new Category
                 {
-                    //Id = 3,
+                    CategoryId = 3,
                     Name = "Túi",
                     Code = "TI"
                 },
                 new Category
                 {
-                    //Id = 4,
+                    CategoryId = 4,
                     Name = "Tất",
                     Code = "TT"
                 },
                 new Category
                 {
-                    //Id = 5,
+                    CategoryId = 5,
                     Name = "Cà vạt",
                     Code = "CV"
                 },
                 new Category
                 {
-                    //Id = 6,
+                    CategoryId = 6,
                     Name ="Giày",
                     Code = "GY"
                 }
@@ -145,6 +209,40 @@ namespace API.Seeders
                 new ImageType { Code = "DETAIL", Name = "Chi tiết" }
             };
         }
+        private IEnumerable<ProductSize> GetProductSizes()
+        {
+            return new List<ProductSize>
+            {
+                new ProductSize { ProductVariantId = 1, SizeId = 5, StockQuantity = 10 }, // Giày VariantId = 1, size 39
+                new ProductSize { ProductVariantId = 1, SizeId = 6, StockQuantity = 15 }, // size 40
+                new ProductSize { ProductVariantId = 2, SizeId = 7, StockQuantity = 8 },  // size 41
+                new ProductSize { ProductVariantId = 2, SizeId = 8, StockQuantity = 12 }  // size 42
+            };
+        }
+
+        private IEnumerable<Size> GetSizes()
+        {
+            return new List<Size>
+            {
+                new Size { SizeType = "S" },
+                new Size { SizeType = "M" },
+                new Size { SizeType = "L" },
+                new Size { SizeType = "XL" },
+                new Size { SizeType = "39" },
+                new Size { SizeType = "40" },
+                new Size { SizeType = "41" },
+                new Size { SizeType = "42" }
+            };
+        }
+
+        private IEnumerable<PaymentMethod> GetPaymentMethods()
+        {
+            return new List<PaymentMethod>
+            {
+                    new PaymentMethod { Code = "COD", Name = "Trả tiền khi nhận hàng" },
+                    new PaymentMethod { Code = "ZP", Name = "Zalo Pay" }
+            };
+        }
 
         private IEnumerable<Product> GetPrimaryProducts()
         {
@@ -157,8 +255,8 @@ namespace API.Seeders
                     Name = "Ví Ngang Nam",
                     Description = "",
                     Price = 500000,
-                    StockQuantity = 50,
-                    CategoryId = 6, // Ví
+                    //StockQuantity = 50,
+                    CategoryId = 1, // Ví
                     IsAvailable = true,
                     CreatedAt = now,
                     UpdatedAt = now,
@@ -173,34 +271,35 @@ namespace API.Seeders
                             CreatedAt = now,
                             UpdatedAt = now
                         },
-                        new ProductImage
-                        {
-                            Url = "/Images/VI/vi_black_back.jpg",
-                            ImageTypeId = (int)ImageTypeEnum.Back,
-                            IsPrimary = false,
-                            SortOrder = 2,
-                            CreatedAt = now,
-                            UpdatedAt = now
-                        },
-                        new ProductImage
-                        {
-                            Url = "/Images/VI/vi_black_mat.jpg",
-                            ImageTypeId = (int)ImageTypeEnum.Back,
-                            IsPrimary = false,
-                            SortOrder = 3,
-                            CreatedAt = now,
-                            UpdatedAt = now
-                        }
+                        //new ProductImage
+                        //{
+                        //    Url = "/Images/VI/vi_black_back.jpg",
+                        //    ImageTypeId = (int)ImageTypeEnum.Back,
+                        //    IsPrimary = false,
+                        //    SortOrder = 2,
+                        //    CreatedAt = now,
+                        //    UpdatedAt = now
+                        //},
+                        //new ProductImage
+                        //{
+                        //    Url = "/Images/VI/vi_black_mat.jpg",
+                        //    ImageTypeId = (int)ImageTypeEnum.Back,
+                        //    IsPrimary = false,
+                        //    SortOrder = 3,
+                        //    CreatedAt = now,
+                        //    UpdatedAt = now
+                        //}
                     },
                     Variants = new List<ProductVariant>
                     {
                         new ProductVariant
                         {
                             VariantCode = "WALL-BROWN",
-                            Color = "NAU",
-                            Size = "",
+                            Color = "Nâu",
+                            //Size = "",
                             CreatedAt = now,
                             UpdatedAt = now,
+                            //StockQuantity = 10,
                             Images = new List<ProductImage>
                             {
                                   new ProductImage
@@ -240,8 +339,8 @@ namespace API.Seeders
                     Name = "Dây lưng lẻ da bò dập vân xỏ kim Aristino",
                     Description = "",
                     Price = 700000,
-                    StockQuantity = 30,
-                    CategoryId = 7,
+                    //StockQuantity = 30,
+                    CategoryId = 2,
                     IsAvailable = true,
                     CreatedAt = now,
                     UpdatedAt = now,
@@ -256,25 +355,26 @@ namespace API.Seeders
                             CreatedAt = now,
                             UpdatedAt = now
                         },
-                        new ProductImage
-                        {
-                            Url = "/Images/TTL/thl_black_b.jpg",
-                            ImageTypeId = (int)ImageTypeEnum.Front,
-                            IsPrimary = false,
-                            SortOrder = 2,
-                            CreatedAt = now,
-                            UpdatedAt = now
-                        }
+                        //new ProductImage
+                        //{
+                        //    Url = "/Images/TTL/thl_black_b.jpg",
+                        //    ImageTypeId = (int)ImageTypeEnum.Front,
+                        //    IsPrimary = false,
+                        //    SortOrder = 2,
+                        //    CreatedAt = now,
+                        //    UpdatedAt = now
+                        //}
                     },
                     Variants = new List<ProductVariant>
                     {
                         new ProductVariant
                         {
                             VariantCode = "BELT-BROWN",
-                            Color = "NAU",
-                            Size = "L",
+                            Color = "Nâu",
+                            //Size = "L",
                             CreatedAt = now,
                             UpdatedAt = now,
+                            //StockQuantity = 10,
                             Images =  new List<ProductImage>
                             {
                                   new ProductImage
@@ -305,8 +405,8 @@ namespace API.Seeders
                     Name = "Dây lưng lẻ da bò dập vân Aristino",
                     Description = "",
                     Price = 700000,
-                    StockQuantity = 30,
-                    CategoryId = 7,
+                    //StockQuantity = 30,
+                    CategoryId = 2,
                     IsAvailable = true,
                     CreatedAt = now,
                     UpdatedAt = now,
@@ -321,25 +421,26 @@ namespace API.Seeders
                             CreatedAt = now,
                             UpdatedAt = now
                         },
-                        new ProductImage
-                        {
-                            Url = "/Images/TTL/thl_black_hole_b.jpg",
-                            ImageTypeId = (int)ImageTypeEnum.Front,
-                            IsPrimary = false,
-                            SortOrder = 2,
-                            CreatedAt = now,
-                            UpdatedAt = now
-                        }
+                        //new ProductImage
+                        //{
+                        //    Url = "/Images/TTL/thl_black_hole_b.jpg",
+                        //    ImageTypeId = (int)ImageTypeEnum.Front,
+                        //    IsPrimary = false,
+                        //    SortOrder = 2,
+                        //    CreatedAt = now,
+                        //    UpdatedAt = now
+                        //}
                     },
                     Variants = new List<ProductVariant>
                     {
                         new ProductVariant
                         {
                             VariantCode = "BELT-BROWN-HOLE",
-                            Color = "NAU",
-                            Size = "L",
+                            Color = "Nâu",
+                            //Size = "L",
                             CreatedAt = now,
                             UpdatedAt = now,
+                            //StockQuantity = 10,
                             Images =  new List<ProductImage>
                             {
                                     new ProductImage
@@ -362,8 +463,8 @@ namespace API.Seeders
                     Name = "Cà Vạt Nam Kẻ Đan Lát Bản To 7x3.8cm Aristino",
                     Description = "",
                     Price = 500000,
-                    StockQuantity = 50,
-                    CategoryId = 10,
+                    //StockQuantity = 50,
+                    CategoryId = 5,
                     IsAvailable = true,
                     CreatedAt = now,
                     UpdatedAt = now,
@@ -378,15 +479,15 @@ namespace API.Seeders
                             CreatedAt = now,
                             UpdatedAt = now
                         },
-                        new ProductImage
-                        {
-                            Url = "/Images/CV/cv_black_smooth_b.jpg",
-                            ImageTypeId = (int)ImageTypeEnum.Back,
-                            IsPrimary = false,
-                            SortOrder = 2,
-                            CreatedAt = now,
-                            UpdatedAt = now
-                        },
+                        //new ProductImage
+                        //{
+                        //    Url = "/Images/CV/cv_black_smooth_b.jpg",
+                        //    ImageTypeId = (int)ImageTypeEnum.Back,
+                        //    IsPrimary = false,
+                        //    SortOrder = 2,
+                        //    CreatedAt = now,
+                        //    UpdatedAt = now
+                        //},
                     },
                 },
 
@@ -395,8 +496,8 @@ namespace API.Seeders
                     Name = "Giày Da Moca Nam Aristino Business",
                     Description = "",
                     Price = 500000,
-                    StockQuantity = 50,
-                    CategoryId = 11,
+                    //StockQuantity = 50,
+                    CategoryId = 6,
                     IsAvailable = true,
                     CreatedAt = now,
                     UpdatedAt = now,
@@ -411,15 +512,15 @@ namespace API.Seeders
                             CreatedAt = now,
                             UpdatedAt = now
                         },
-                        new ProductImage
-                        {
-                            Url = "/Images/CV/cv_black_smooth_b.jpg",
-                            ImageTypeId = (int)ImageTypeEnum.Back,
-                            IsPrimary = false,
-                            SortOrder = 2,
-                            CreatedAt = now,
-                            UpdatedAt = now
-                        },
+                        //new ProductImage
+                        //{
+                        //    Url = "/Images/CV/cv_black_smooth_b.jpg",
+                        //    ImageTypeId = (int)ImageTypeEnum.Back,
+                        //    IsPrimary = false,
+                        //    SortOrder = 2,
+                        //    CreatedAt = now,
+                        //    UpdatedAt = now
+                        //},
                     },
                 },
 
@@ -428,8 +529,8 @@ namespace API.Seeders
                     Name = "Giày Da Moca Nam Aristino Business",
                     Description = "",
                     Price = 500000,
-                    StockQuantity = 50,
-                    CategoryId = 11,
+                    //StockQuantity = 50,
+                    CategoryId = 6,
                     IsAvailable = true,
                     CreatedAt = now,
                     UpdatedAt = now,
@@ -444,15 +545,15 @@ namespace API.Seeders
                             CreatedAt = now,
                             UpdatedAt = now
                         },
-                        new ProductImage
-                        {
-                            Url = "/Images/CV/cv_black_smooth_b.jpg",
-                            ImageTypeId = (int)ImageTypeEnum.Back,
-                            IsPrimary = false,
-                            SortOrder = 2,
-                            CreatedAt = now,
-                            UpdatedAt = now
-                        },
+                        //new ProductImage
+                        //{
+                        //    Url = "/Images/CV/cv_black_smooth_b.jpg",
+                        //    ImageTypeId = (int)ImageTypeEnum.Back,
+                        //    IsPrimary = false,
+                        //    SortOrder = 2,
+                        //    CreatedAt = now,
+                        //    UpdatedAt = now
+                        //},
                     },
                 },
             };

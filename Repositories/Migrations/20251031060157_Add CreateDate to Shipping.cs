@@ -5,25 +5,25 @@
 namespace Repositories.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIsCategoryinProductImage : Migration
+    public partial class AddCreateDatetoShipping : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsCategory",
-                table: "ProductImage",
-                type: "bit",
+            migrationBuilder.AddColumn<int>(
+                name: "CreatedDate",
+                table: "Shipping",
+                type: "int",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: 0);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsCategory",
-                table: "ProductImage");
+                name: "CreatedDate",
+                table: "Shipping");
         }
     }
 }

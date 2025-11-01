@@ -39,17 +39,17 @@ namespace API.Controllers
         }
 
         //Đăng ký người dùng mới
-        [HttpPost("register")]
-        public async Task<IActionResult> RegisterUser([FromBody] CreateUserModel registerUser)
-        {
-            var userEntity = _mapper.Map<User>(registerUser);
-            var isSuccess = await _userService.RegisterUser(userEntity);
-            if (!isSuccess)
-            {
-                return BadRequest("Registration failed. User may already exist.");
-            }
-            return Ok();
-        }
+        //[HttpPost("register")]
+        //public async Task<IActionResult> RegisterUser([FromBody] CreateUserModel registerUser)
+        //{
+        //    var userEntity = _mapper.Map<User>(registerUser);
+        //    var isSuccess = await _userService.RegisterUser(userEntity);
+        //    if (!isSuccess)
+        //    {
+        //        return BadRequest("Registration failed. User may already exist.");
+        //    }
+        //    return Ok();
+        //}
 
         //Cập nhật thông tin người dùng
         [Authorize]
@@ -66,9 +66,9 @@ namespace API.Controllers
             var isSuccess = await _userService.UpdateUserAsync(updateUserEntity);
             if (!isSuccess)
             {
-                return BadRequest();
+                return BadRequest(new { isSuccess = false, message = "Cập nhật thất bại" });
             }
-            return Ok();
+            return Ok(new { isSuccess = true, message = "Cập nhật thành công" });
         }
     }
 }

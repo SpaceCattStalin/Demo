@@ -6,20 +6,15 @@ namespace Repositories.Entities;
 public partial class Payment
 {
     public int Id { get; set; }
-
     public decimal Amount { get; set; }
-
-    public string Type { get; set; } = null!;
+    public int PaymentMethodId { get; set; }
+    public virtual PaymentMethod Method { get; set; }
 
     public string Status { get; set; } = null!;
-
-    public DateTime? ProcessedDate { get; set; }
-
-    public DateTime CreatedDate { get; set; }
-
-    public DateTime? UpdatedDate { get; set; }
-
+    public int? ProcessedDate { get; set; }
+    public int CreatedDate { get; set; }
+    public int? UpdatedDate { get; set; }
     public bool IsDeleted { get; set; }
-
-    public virtual Order IdNavigation { get; set; } = null!;
+    public int OrderId { get; set; }
+    public virtual Order Order { get; set; } = null!;
 }

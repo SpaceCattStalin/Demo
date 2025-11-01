@@ -11,17 +11,19 @@ public partial class Order
 
     public string Status { get; set; } = null!;
 
-    public DateTime CreatedDate { get; set; }
+    public int CreatedDate { get; set; }
 
-    public DateTime? UpdatedDate { get; set; }
+    public int? UpdatedDate { get; set; }
 
-    public int UsersId { get; set; }
+    public int UserId { get; set; }
 
-    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
-    public virtual Payment? Payment { get; set; }
+    //public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+    public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
 
-    public virtual Shipping? Shipping { get; set; }
+    public virtual List<Payment> Payments { get; set; } = new List<Payment>();
+
+    public virtual List<Shipping> Shippings { get; set; } = new List<Shipping>();
 
     public virtual User Users { get; set; } = null!;
 }

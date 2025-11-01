@@ -1,4 +1,5 @@
 ﻿using API.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity.Data;
@@ -18,11 +19,15 @@ namespace API.Controllers
     {
         private readonly IConfiguration _config;
         private readonly AuthService _authService;
+        private readonly UserService _userService;
+        private readonly IMapper _mapper;
 
-        public AuthController(IConfiguration config, AuthService authService)
+        public AuthController(IConfiguration config, AuthService authService, IMapper mapper, UserService userService)
         {
             _config = config;
             _authService = authService;
+            _mapper = mapper;
+            _userService = userService;
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestModel request)
@@ -37,6 +42,18 @@ namespace API.Controllers
             return Ok(token);
         }
 
+        //Đăng ký người dùng mới
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterUser([FromBody] CreateUserModel registerUser)
+        {
+            var userEntity = _mapper.Map<User>(registerUser);
+            var isSuccess = await _userService.RegisterUser(userEntity);
+            if (!isSuccess)
+            {
+                return BadRequest("Registration failed. User may already exist.");
+            }
+            return Ok();
+        }
 
         private string GenerateJSONWebToken(User user)
         {

@@ -13,7 +13,7 @@ public partial class Product
 
     public decimal Price { get; set; }
 
-    public int StockQuantity { get; set; }
+    //public int StockQuantity { get; set; }
 
     //public DateTime CreatedDate { get; set; }
 
@@ -22,12 +22,13 @@ public partial class Product
     public int CreatedAt { get; set; }
     public int UpdatedAt { get; set; }
 
-    public bool IsAvailable { get; set; }
-
-    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
+    public bool IsAvailable { get; set; } = true;
+    //public string? Color { get; set; }
+    //public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public int? CategoryId { get; set; }
     public Category Category { get; set; }
     public ICollection<ProductVariant> Variants { get; set; }
     public ICollection<ProductImage> Images { get; set; }
+    //public ICollection<ProductSize> ProductSize { get; set; }
 }

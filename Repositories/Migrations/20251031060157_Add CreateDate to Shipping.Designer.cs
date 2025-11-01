@@ -12,8 +12,8 @@ using Repositories;
 namespace Repositories.Migrations
 {
     [DbContext(typeof(DemoDbContext))]
-    [Migration("20251025130111_Add Category, ProductImage,ImageType, ProductVariant fix")]
-    partial class AddCategoryProductImageImageTypeProductVariantfix
+    [Migration("20251031060157_Add CreateDate to Shipping")]
+    partial class AddCreateDatetoShipping
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,40 +33,53 @@ namespace Repositories.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10, 2)");
-
-                    b.Property<int?>("OrdersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.Property<int>("UsersId")
                         .HasColumnType("int");
 
                     b.HasKey("Id")
                         .HasName("PK__Cart__3214EC074C214C3E");
 
-                    b.HasIndex("OrdersId");
-
-                    b.HasIndex("ProductId");
-
                     b.HasIndex("UsersId");
 
                     b.ToTable("Cart", (string)null);
                 });
 
-            modelBuilder.Entity("Repositories.Entities.Category", b =>
+            modelBuilder.Entity("Repositories.Entities.CartItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CartId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductVariantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__CartItem");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("CartItem", (string)null);
+                });
+
+            modelBuilder.Entity("Repositories.Entities.Category", b =>
+                {
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -77,6 +90,9 @@ namespace Repositories.Migrations
                     b.Property<int>("CreatedAt")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -85,10 +101,35 @@ namespace Repositories.Migrations
                     b.Property<int>("UpdatedAt")
                         .HasColumnType("int");
 
-                    b.HasKey("Id")
+                    b.HasKey("CategoryId")
                         .HasName("PK__Category__3214EC07XXXXXX");
 
                     b.ToTable("Category", (string)null);
+                });
+
+            modelBuilder.Entity("Repositories.Entities.CategoryImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__CategoryImage__3214EC07");
+
+                    b.HasIndex("CategoryId")
+                        .IsUnique();
+
+                    b.ToTable("CategoryImage", (string)null);
                 });
 
             modelBuilder.Entity("Repositories.Entities.DiscountCode", b =>
@@ -155,8 +196,8 @@ namespace Repositories.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime");
+                    b.Property<int>("CreatedDate")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -166,54 +207,122 @@ namespace Repositories.Migrations
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(10, 2)");
 
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime");
+                    b.Property<int?>("UpdatedDate")
+                        .HasColumnType("int");
 
-                    b.Property<int>("UsersId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id")
                         .HasName("PK__Orders__3214EC0725F77EBC");
 
-                    b.HasIndex("UsersId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Repositories.Entities.OrderItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductVariantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SizeType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__OrderItem");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.ToTable("OrderItem", (string)null);
                 });
 
             modelBuilder.Entity("Repositories.Entities.Payment", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(10, 2)");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime");
+                    b.Property<int>("CreatedDate")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime?>("ProcessedDate")
-                        .HasColumnType("datetime");
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProcessedDate")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime");
+                    b.Property<int?>("UpdatedDate")
+                        .HasColumnType("int");
 
                     b.HasKey("Id")
                         .HasName("PK__Payment__3214EC07B7C873C2");
 
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("PaymentMethodId");
+
                     b.ToTable("Payment", (string)null);
+                });
+
+            modelBuilder.Entity("Repositories.Entities.PaymentMethod", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__PaymentMethod");
+
+                    b.ToTable("PaymentMethod", (string)null);
                 });
 
             modelBuilder.Entity("Repositories.Entities.Product", b =>
@@ -231,28 +340,19 @@ namespace Repositories.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(max)");
+                        .HasMaxLength(55)
+                        .HasColumnType("nvarchar(55)");
 
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(55)
+                        .HasColumnType("nvarchar(55)");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10, 2)");
-
-                    b.Property<int>("StockQuantity")
-                        .HasColumnType("int");
 
                     b.Property<int>("UpdatedAt")
                         .HasColumnType("int");
@@ -278,6 +378,9 @@ namespace Repositories.Migrations
 
                     b.Property<int>("ImageTypeId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsCategory")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsPrimary")
                         .HasColumnType("bit");
@@ -311,6 +414,33 @@ namespace Repositories.Migrations
                     b.ToTable("ProductImage", (string)null);
                 });
 
+            modelBuilder.Entity("Repositories.Entities.ProductSize", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ProductVariantId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SizeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockQuantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PK__ProductSize");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("SizeId");
+
+                    b.ToTable("ProductSize", (string)null);
+                });
+
             modelBuilder.Entity("Repositories.Entities.ProductVariant", b =>
                 {
                     b.Property<int>("Id")
@@ -320,28 +450,25 @@ namespace Repositories.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("CreatedAt")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("UpdatedAt")
                         .HasColumnType("int");
 
                     b.Property<string>("VariantCode")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id")
                         .HasName("PK__ProductVariant");
@@ -387,11 +514,8 @@ namespace Repositories.Migrations
 
             modelBuilder.Entity("Repositories.Entities.Role", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("RoleId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -399,7 +523,7 @@ namespace Repositories.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(100)");
 
-                    b.HasKey("Id")
+                    b.HasKey("RoleId")
                         .HasName("PK__Role__3214EC078D93600C");
 
                     b.ToTable("Role", (string)null);
@@ -408,31 +532,61 @@ namespace Repositories.Migrations
             modelBuilder.Entity("Repositories.Entities.Shipping", b =>
                 {
                     b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CreatedDate")
                         .HasColumnType("int");
 
                     b.Property<string>("EndAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("FinishDate")
-                        .HasColumnType("datetime");
+                    b.Property<int?>("FinishDate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
 
                     b.Property<string>("StartAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime");
+                    b.Property<int>("StartDate")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id")
                         .HasName("PK__Shipping__3214EC07193B379B");
 
+                    b.HasIndex("OrderId");
+
                     b.ToTable("Shipping", (string)null);
+                });
+
+            modelBuilder.Entity("Repositories.Entities.Size", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("SizeType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PK__Size");
+
+                    b.ToTable("Size", (string)null);
                 });
 
             modelBuilder.Entity("Repositories.Entities.User", b =>
@@ -444,8 +598,8 @@ namespace Repositories.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateOnly?>("Birthday")
                         .HasColumnType("date");
@@ -455,23 +609,23 @@ namespace Repositories.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(255)
+                        .HasMaxLength(50)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("varchar(50)");
 
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(255)
+                        .HasMaxLength(50)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Phone")
                         .IsRequired()
@@ -514,50 +668,108 @@ namespace Repositories.Migrations
 
             modelBuilder.Entity("Repositories.Entities.Cart", b =>
                 {
-                    b.HasOne("Repositories.Entities.Order", "Orders")
-                        .WithMany("Carts")
-                        .HasForeignKey("OrdersId")
-                        .HasConstraintName("FKCart841263");
-
-                    b.HasOne("Repositories.Entities.Product", "Product")
-                        .WithMany("Carts")
-                        .HasForeignKey("ProductId")
-                        .IsRequired()
-                        .HasConstraintName("FKCart557549");
-
                     b.HasOne("Repositories.Entities.User", "Users")
                         .WithMany("Carts")
                         .HasForeignKey("UsersId")
                         .IsRequired()
                         .HasConstraintName("FKCart661383");
 
-                    b.Navigation("Orders");
-
-                    b.Navigation("Product");
-
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Repositories.Entities.CartItem", b =>
+                {
+                    b.HasOne("Repositories.Entities.Cart", "Cart")
+                        .WithMany("Items")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CartItem_Cart");
+
+                    b.HasOne("Repositories.Entities.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CartItem_ProductVariant");
+
+                    b.HasOne("Repositories.Entities.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CartItem_Size");
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("Size");
+                });
+
+            modelBuilder.Entity("Repositories.Entities.CategoryImage", b =>
+                {
+                    b.HasOne("Repositories.Entities.Category", "Category")
+                        .WithOne("Image")
+                        .HasForeignKey("Repositories.Entities.CategoryImage", "CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CategoryImage_Category");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Repositories.Entities.Order", b =>
                 {
                     b.HasOne("Repositories.Entities.User", "Users")
                         .WithMany("Orders")
-                        .HasForeignKey("UsersId")
+                        .HasForeignKey("UserId")
                         .IsRequired()
                         .HasConstraintName("FKOrders336570");
 
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("Repositories.Entities.OrderItem", b =>
+                {
+                    b.HasOne("Repositories.Entities.Order", "Order")
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__OrderItem_Order");
+
+                    b.HasOne("Repositories.Entities.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__OrderItem_ProductVariant");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("ProductVariant");
+                });
+
             modelBuilder.Entity("Repositories.Entities.Payment", b =>
                 {
-                    b.HasOne("Repositories.Entities.Order", "IdNavigation")
-                        .WithOne("Payment")
-                        .HasForeignKey("Repositories.Entities.Payment", "Id")
+                    b.HasOne("Repositories.Entities.Order", "Order")
+                        .WithMany("Payments")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FKPayment927541");
+                        .HasConstraintName("FK_Order_Payments");
 
-                    b.Navigation("IdNavigation");
+                    b.HasOne("Repositories.Entities.PaymentMethod", "Method")
+                        .WithMany("Payments")
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Payment_PaymentMethod");
+
+                    b.Navigation("Method");
+
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Repositories.Entities.Product", b =>
@@ -597,13 +809,34 @@ namespace Repositories.Migrations
                     b.Navigation("ProductVariant");
                 });
 
+            modelBuilder.Entity("Repositories.Entities.ProductSize", b =>
+                {
+                    b.HasOne("Repositories.Entities.ProductVariant", "ProductVariant")
+                        .WithMany("Sizes")
+                        .HasForeignKey("ProductVariantId")
+                        .HasConstraintName("FK_ProductSize_ProductVariant");
+
+                    b.HasOne("Repositories.Entities.Size", "Size")
+                        .WithMany("ProductSize")
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProductSize_Size");
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("Size");
+                });
+
             modelBuilder.Entity("Repositories.Entities.ProductVariant", b =>
                 {
-                    b.HasOne("Repositories.Entities.Product", null)
+                    b.HasOne("Repositories.Entities.Product", "Product")
                         .WithMany("Variants")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Repositories.Entities.RefreshToken", b =>
@@ -619,13 +852,13 @@ namespace Repositories.Migrations
 
             modelBuilder.Entity("Repositories.Entities.Shipping", b =>
                 {
-                    b.HasOne("Repositories.Entities.Order", "IdNavigation")
-                        .WithOne("Shipping")
-                        .HasForeignKey("Repositories.Entities.Shipping", "Id")
+                    b.HasOne("Repositories.Entities.Order", "Order")
+                        .WithMany("Shippings")
+                        .HasForeignKey("OrderId")
                         .IsRequired()
                         .HasConstraintName("FKShipping479047");
 
-                    b.Navigation("IdNavigation");
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Repositories.Entities.User", b =>
@@ -658,8 +891,16 @@ namespace Repositories.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("Repositories.Entities.Cart", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("Repositories.Entities.Category", b =>
                 {
+                    b.Navigation("Image")
+                        .IsRequired();
+
                     b.Navigation("Products");
                 });
 
@@ -670,17 +911,20 @@ namespace Repositories.Migrations
 
             modelBuilder.Entity("Repositories.Entities.Order", b =>
                 {
-                    b.Navigation("Carts");
+                    b.Navigation("Items");
 
-                    b.Navigation("Payment");
+                    b.Navigation("Payments");
 
-                    b.Navigation("Shipping");
+                    b.Navigation("Shippings");
+                });
+
+            modelBuilder.Entity("Repositories.Entities.PaymentMethod", b =>
+                {
+                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("Repositories.Entities.Product", b =>
                 {
-                    b.Navigation("Carts");
-
                     b.Navigation("Images");
 
                     b.Navigation("Variants");
@@ -689,11 +933,18 @@ namespace Repositories.Migrations
             modelBuilder.Entity("Repositories.Entities.ProductVariant", b =>
                 {
                     b.Navigation("Images");
+
+                    b.Navigation("Sizes");
                 });
 
             modelBuilder.Entity("Repositories.Entities.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Repositories.Entities.Size", b =>
+                {
+                    b.Navigation("ProductSize");
                 });
 
             modelBuilder.Entity("Repositories.Entities.User", b =>

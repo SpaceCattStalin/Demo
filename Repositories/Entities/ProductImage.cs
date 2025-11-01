@@ -9,7 +9,7 @@
         public string Url { get; set; }
         public bool IsPrimary { get; set; }
         public bool IsCategory { get; set; } = false;
-        public int SortOrder { get; set; }
+        public int SortOrder { get; set; } = 1;
         public int CreatedAt { get; set; }
         public int UpdatedAt { get; set; }
         public Product Product { get; set; }

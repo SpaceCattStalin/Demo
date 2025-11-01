@@ -63,8 +63,8 @@ namespace Repositories.Basic
 
                 if (existingEntity == null) return 0;
 
-                _context.Entry(existingEntity).State = EntityState.Detached; // ✅ Prevent tracking conflicts
-                _context.Entry(entity).State = EntityState.Modified; // ✅ Mark for update
+                _context.Entry(existingEntity).State = EntityState.Detached;
+                _context.Entry(entity).State = EntityState.Modified;
 
                 return await _context.SaveChangesAsync();
             }
