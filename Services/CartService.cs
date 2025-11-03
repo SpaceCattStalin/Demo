@@ -76,36 +76,69 @@ namespace Services
                     return null;
 
                 var cart = await _unitOfWork.CartRepository.GetCartsByUserIdAsync(userId);
-                var ps = variant.Sizes.FirstOrDefault(s => s.SizeId == sizeId.Value);
-                var stock = ps.StockQuantity;
-
-                //var cartItem = cart.Items.FirstOrDefault(i => i.ProductVariantId == productVariantId);
-                var cartItem = cart.Items.FirstOrDefault(
-                           i => i.ProductVariantId == productVariantId && i.SizeId == sizeId.Value);
-
-                if (cartItem == null)
+                if (sizeId != null)
                 {
-                    // thêm mới 1 sp với quantity = 1 => kiểm tra đủ tồn kho không
-                    if (stock < 1)
-                        throw new InvalidOperationException("Hết hàng cho size này.");
+                    var ps = variant.Sizes.FirstOrDefault(s => s.SizeId == sizeId.Value);
+                    var stock = ps.StockQuantity;
 
-                    cart.Items.Add(new CartItem
+                    //var cartItem = cart.Items.FirstOrDefault(i => i.ProductVariantId == productVariantId);
+                    var cartItem = cart.Items.FirstOrDefault(
+                               i => i.ProductVariantId == productVariantId && i.SizeId == sizeId.Value);
+
+                    if (cartItem == null)
                     {
-                        ProductVariantId = productVariantId,
-                        Quantity = 1,
-                        SizeId = sizeId.Value
-                    });
+                        // thêm mới 1 sp với quantity = 1 => kiểm tra đủ tồn kho không
+                        if (stock < 1)
+                            throw new InvalidOperationException("Hết hàng cho size này.");
+
+                        cart.Items.Add(new CartItem
+                        {
+                            ProductVariantId = productVariantId,
+                            Quantity = 1,
+                            SizeId = sizeId.Value
+                        });
+                    }
+                    else
+                    {
+                        // tăng số lượng => kiểm tra tồn kho
+                        var newQty = cartItem.Quantity + 1;
+                        if (newQty > stock)
+                            throw new InvalidOperationException(
+                                $"Số lượng vượt tồn kho (tồn: {stock}) cho size {ps.Size.SizeType}."
+                            );
+                        cartItem.Quantity = newQty;
+                    }
                 }
                 else
                 {
-                    // tăng số lượng => kiểm tra tồn kho
-                    var newQty = cartItem.Quantity + 1;
-                    if (newQty > stock)
-                        throw new InvalidOperationException(
-                            $"Số lượng vượt tồn kho (tồn: {stock}) cho size {ps.Size.SizeType}."
-                        );
-                    cartItem.Quantity = newQty;
+                    var stock = productVariant.StockQuantity;
+                    var cartItem = cart.Items.FirstOrDefault(item => item.ProductVariantId == productVariantId);
+
+                    if (cartItem == null)
+                    {
+                        // thêm mới 1 sp với quantity = 1 => kiểm tra đủ tồn kho không
+                        if (stock < 1)
+                            throw new InvalidOperationException("Hết hàng cho sản phẩm này.");
+
+                        cart.Items.Add(new CartItem
+                        {
+                            ProductVariantId = productVariantId,
+                            Quantity = 1,
+                            //SizeId = sizeId.Value
+                        });
+                    }
+                    else
+                    {
+                        // tăng số lượng => kiểm tra tồn kho
+                        var newQty = cartItem.Quantity + 1;
+                        if (newQty > stock)
+                            throw new InvalidOperationException(
+                                $"Số lượng vượt tồn kho (tồn: {stock}) cho product {productVariant.Product.Name}."
+                            );
+                        cartItem.Quantity = newQty;
+                    }
                 }
+
 
 
                 //if (cartItem != null)
