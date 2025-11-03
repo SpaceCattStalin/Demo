@@ -1,5 +1,15 @@
 {
   "profiles": {
+    "emulator": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://0.0.0.0:7067;https://0.0.0.0:8080"
+    },
     "http": {
       "commandName": "Project",
       "launchBrowser": true,
