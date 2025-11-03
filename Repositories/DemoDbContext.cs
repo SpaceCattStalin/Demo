@@ -257,6 +257,8 @@ namespace Repositories
                 entity.Property(e => e.Color).HasMaxLength(10);
                 entity.Property(e => e.CreatedAt).HasColumnType("int");
                 entity.Property(e => e.UpdatedAt).HasColumnType("int");
+                entity.Property(e => e.StockQuantity).HasColumnType("int");
+
 
                 entity.HasMany(v => v.Images)
                       .WithOne(i => i.ProductVariant)

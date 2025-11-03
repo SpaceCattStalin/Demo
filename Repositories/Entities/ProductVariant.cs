@@ -7,7 +7,7 @@
         public int CreatedAt { get; set; }
         public int UpdatedAt { get; set; }
         public string VariantCode { get; set; }
-        //public int StockQuantity { get; set; }
+        public int? StockQuantity { get; set; }
         public bool IsAvailable { get; set; } = true;
         public string? Color { get; set; }
         public virtual Product Product { get; set; }

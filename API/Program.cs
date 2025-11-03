@@ -176,6 +176,8 @@ if (app.Environment.IsDevelopment())
 }
 app.UseStaticFiles();
 
+app.UseCors();
+
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(

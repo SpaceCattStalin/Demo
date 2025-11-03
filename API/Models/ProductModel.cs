@@ -18,7 +18,7 @@ namespace API.Models
         public string VariantCode { get; set; }
         public string Color { get; set; }
         public string Size { get; set; }
-
+        public int? StockQuantity { get; set; }
         public List<ProductImageModel> Images { get; set; }
         public List<ProductSizeModel> Sizes { get; set; }
     }
