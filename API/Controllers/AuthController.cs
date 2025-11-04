@@ -33,14 +33,13 @@ namespace API.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequestModel request)
         {
             var user = await _authService.GetUserByCredentials(request.Email, request.Password);
-
             if (user == null)
                 return Unauthorized();
 
             var token = GenerateJSONWebToken(user);
-
             return Ok(token);
         }
+
 
         //Đăng ký người dùng mới
         [HttpPost("register")]

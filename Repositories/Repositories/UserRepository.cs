@@ -19,10 +19,20 @@ namespace Repositories.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
+        [Obsolete("Do not use. Password must be verified with BCrypt.Verify.")]
         public async Task<User?> GetUserByEmailPasswordAsync(string email, string password)
         {
-            return await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+            return await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
         }
+        public async Task<User?> GetUserWithRoleByEmailAsync(string email)
+        {
+            return await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
 
         public async Task<User?> GetUserByIdAsync(int userId)
         {

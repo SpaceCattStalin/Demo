@@ -12,7 +12,9 @@ using Repositories;
 using Repositories.Repositories;
 using Repositories.UnitOfWorks;
 using Services;
+using Services.Interfaces;
 using Services.Mappings;
+using Services.Utils;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -31,6 +33,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.AddInfrastructureServices();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IOtpGenerator, OtpGenerator>();
 
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<ProductRepository>();
@@ -43,8 +46,10 @@ builder.Services.AddScoped<PaymentRepository>();
 builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<ProductImageRepository>();
 builder.Services.AddScoped<ProductVariantRepository>();
+builder.Services.AddScoped<IOtpProtector, OtpProtector>();
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
-
+builder.Services.AddScoped<IAuthEmailOtpService, AuthEmailOtpService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ProductService>();
