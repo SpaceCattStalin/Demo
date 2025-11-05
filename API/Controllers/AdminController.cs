@@ -170,6 +170,27 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "Lỗi server", detail = ex.Message });
             }
         }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("orders/{orderId}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateOrder([FromRoute] int orderId, [FromQuery] OrderStatusEnum orderStatusEnum)
+        {
+            try 
+            {
+                var result = await _orderService.UpdateOrderStatusAsync(orderId, orderStatusEnum);
+                if (!result)
+                {
+                    return BadRequest(new { isSuccess = false, message = "Cập nhật thất bại" });
+                }
+                return Ok(new { isSuccess = true, message = "Cập nhật thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { isSuccess = false, message = ex.Message });
+            }
+        }
+
         [HttpGet("shippings")]
         public async Task<IActionResult> GetAll([FromQuery] AdminOrderFilterRequest filter)
         {
@@ -302,6 +323,8 @@ namespace API.Controllers
                 return StatusCode(500, new { message = "Lỗi server", detail = ex.Message });
             }
         }
+
+
 
         //[Authorize(Roles = "Admin")]
         //[HttpGet("orders/{orderId}")]
