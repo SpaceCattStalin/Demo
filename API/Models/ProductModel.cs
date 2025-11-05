@@ -9,7 +9,9 @@ namespace API.Models
         public decimal Price { get; set; }
         public string CategoryName { get; set; }
         public List<ProductVariantModel> Variants { get; set; }
-        public List<ProductImageModel> Images { get; set; }
+        //public List<ProductImageModel> Images { get; set; }
+        public string Image { get; set; }
+
     }
 
     public class ProductVariantModel
@@ -32,6 +34,7 @@ namespace API.Models
 
     public class ProductSizeModel
     {
+        public int SizeId { get; set; }
         public int StockQuantity { get; set; }
         public string Size { get; set; }
     }

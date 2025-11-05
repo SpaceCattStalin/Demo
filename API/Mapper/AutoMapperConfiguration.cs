@@ -32,8 +32,15 @@ namespace API.Mapper
                 opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.Variants,
                 opt => opt.MapFrom(src => src.Variants))
-                .ForMember(dest => dest.Images,
-                opt => opt.MapFrom(src => src.Images))
+                  .ForMember(dest => dest.Image,
+                    opt => opt.MapFrom(src =>
+                        src.Variants
+                            .SelectMany(v => v.Images)
+                            .Select(img => img.Url)
+                            .FirstOrDefault()
+                    ))
+                //.ForMember(dest => dest.Images,
+                //opt => opt.MapFrom(src => src.Images))
                 .ReverseMap();
 
             // ProductVariant -> ProductVariantModel
@@ -46,7 +53,8 @@ namespace API.Mapper
             CreateMap<ProductImage, ProductImageModel>().ReverseMap();
             CreateMap<ProductSize, ProductSizeModel>()
                 .ForMember(dest => dest.Size,
-                opt => opt.MapFrom(src => src.Size.SizeType));
+                opt => opt.MapFrom(src => src.Size.SizeType))
+                .ForMember(dest => dest.SizeId, opt => opt.MapFrom(src => src.Size.Id));
 
             // Size -> SizeDTO  
             CreateMap<SizeDTO, Size>().ReverseMap();

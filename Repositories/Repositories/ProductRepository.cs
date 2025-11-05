@@ -53,21 +53,87 @@ namespace Repositories.Repositories
         //        throw new Exception($"Lỗi khi get all Product: {ex.InnerException?.Message ?? ex.Message}");
         //    }
         //}
+
+        public async Task<List<string>> GetPrimaryProductImages()
+        {
+            try
+            {
+                //var products = await _context.Products
+                //    .Include(p => p.Images)
+                //    .GroupBy(p => p.CategoryId)
+                //    .Select(g => g.First())
+                //    .ToListAsync();
+
+
+                //var urls = products
+                //    .Select(p => p.Images
+                //        .FirstOrDefault(img => img.IsPrimary)?.Url
+                //    )
+                //    .ToList();
+                var categories = await _context.Categories
+                   .Include(c => c.Image)
+                   .ToListAsync();
+
+                var urls = categories
+                    .Where(c => c.Image != null)
+                    .Select(c => c.Image.Url)
+                    .ToList();
+
+                return urls;
+
+                return urls;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
         public async Task<PaginationResult<Product>> GetAllProductsByCategory(
           ProductFilterRequest filter)
         {
             try
             {
                 var query = _context.Products
-                  .Where(p => p.CategoryId == filter.CategoryId)
-                  .Include(p => p.Images.Where(i => i.IsPrimary))
-                  .AsQueryable();
+                     .Include(p => p.Images)
+                                    .Include(p => p.Variants)
+                                        .ThenInclude(ps => ps.Sizes)
+                                    .Include(p => p.Variants)
+                                        .ThenInclude(v => v.Images)
+                                    .Include(p => p.Variants)
+                                        .ThenInclude(v => v.Sizes)
+                                            .ThenInclude(sz => sz.Size)
+                           .Include(p => p.Images.Where(i => i.IsPrimary))
+                           .AsQueryable();
+
+                if (filter.CategoryId != 0)
+                {
+                    query = query.Where(p => p.CategoryId == filter.CategoryId);
+                }
+
+                //var query = _context.Products
+                //  .Where(p => p.CategoryId == filter.CategoryId)
+                //  .Include(p => p.Images.Where(i => i.IsPrimary))
+                //  .AsQueryable();
 
                 // Filter by Keyword (Name or Description)
                 if (!string.IsNullOrEmpty(filter.Keyword))
                 {
-                    query = query.Where(p => p.Name.Contains(filter.Keyword)
-                                           || p.Description.Contains(filter.Keyword));
+                    query = query.Where(p => p.Name.Contains(filter.Keyword));
+                }
+                if (filter.Colors != null && filter.Colors.Any())
+                {
+                    query = query.Where(p => p.Variants
+                        .Any(v => filter.Colors.Contains(v.Color)));
+                }
+
+                // Filter by multiple Sizes
+                if (filter.Sizes != null && filter.Sizes.Any())
+                {
+                    query = query.Where(p => p.Variants
+                        .Any(v => v.Sizes
+                            .Any(s => filter.Sizes.Contains(s.Size.SizeType))));
                 }
 
                 // Filter by Min Price

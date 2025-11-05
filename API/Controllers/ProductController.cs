@@ -33,14 +33,18 @@ namespace API.Controllers
             return Ok(new { isSuccess = true, items = result });
         }
 
-        [HttpGet("by-category")]
+        //[HttpGet("by-category")]
+        [HttpGet("search")]
         public async Task<IActionResult> GetAllByCategory([FromQuery] ProductFilterRequest filter)
         {
             try
             {
                 var products = await _productService.GetThumbnailProducts(filter);
+                var result = _mapper.Map<PaginationResult<ProductModel>>(products);
+                //products.Items = (IEnumerable<Repositories.Entities.Product>)_mapper.Map<List<ProductModel>>(products.Items);
 
-                return Ok(products);
+
+                return Ok(result);
             }
             catch (ArgumentException ex)
             {
@@ -87,6 +91,13 @@ namespace API.Controllers
             }
         }
 
+        [HttpGet("images")]
+        public async Task<IActionResult> GetImages()
+        {
+            var images = await _productService.GetIsPrimaryProductImage();
+
+            return Ok(images);
+        }
 
         //[HttpPost]
         //public async Task<ActionResult> AddProduct([FromBody] Services.DTOs.CreateProductModel productModel)

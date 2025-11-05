@@ -9,9 +9,12 @@ namespace Repositories.DTOs
     public class ProductFilterRequest
     {
         public string? Keyword { get; set; }
-        public int CategoryId { get; set; }
+        public int CategoryId { get; set; } = 0;
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
+        public List<string>? Colors { get; set; }
+        public List<string>? Sizes { get; set; }
+
 
         // Paging
         public int CurrentPage { get; set; } = 1;

@@ -62,7 +62,7 @@ namespace Services
             return numberProductValid;
         }
 
-        public async Task<PaginationResult<ProductThumbnailDto>> GetThumbnailProducts(
+        public async Task<PaginationResult<Product>> GetThumbnailProducts(
              DTOs.ProductFilterRequest filter)
         {
             var mappedFilter = _mapper.Map<Repositories.DTOs.ProductFilterRequest>(filter);
@@ -70,12 +70,19 @@ namespace Services
             var result = await _unitOfWork.ProductRepository
                 .GetAllProductsByCategory(mappedFilter);
 
-            // Map entity → DTO
-            var dtoItems = _mapper.Map<List<ProductThumbnailDto>>(result.Items);
+            return result;
 
-            return new PaginationResult<ProductThumbnailDto>(
-                dtoItems, result.CurrentPage, result.PageSize, result.TotalItems, result.TotalPages
-            );
+            // Map entity → DTO
+            //var dtoItems = _mapper.Map<List<ProductThumbnailDto>>(result.Items);
+
+            //return new PaginationResult<Product>(
+            //    result, result.CurrentPage, result.PageSize, result.TotalItems, result.TotalPages
+            //);
+        }
+
+        public async Task<List<string>> GetIsPrimaryProductImage()
+        {
+            return await _unitOfWork.ProductRepository.GetPrimaryProductImages();
         }
 
         public async Task<int> DeleteProduct(int id)
