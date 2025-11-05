@@ -14,7 +14,22 @@ namespace Services
 
         public async Task<User?> GetUserByCredentials(string email, string password)
         {
-            return await _unitOfWork.UserRepository.GetUserByEmailPasswordAsync(email, password);
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+                return null;
+
+            var normEmail = email.Trim();
+            var user = await _unitOfWork.UserRepository.GetUserWithRoleByEmailAsync(normEmail);
+            if (user == null) return null;
+
+            
+            if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
+                return null;
+
+            
+            if (user.IsActive.HasValue && !user.IsActive.Value)
+                return null;
+
+            return user;
         }
     }
 }

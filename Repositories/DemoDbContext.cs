@@ -47,6 +47,8 @@ namespace Repositories
         public virtual DbSet<ProductSize> ProductSizes { get; set; }
 
         public virtual DbSet<UsersDiscountCode> UsersDiscountCodes { get; set; }
+        public virtual DbSet<PendingEmailRegistration> PendingEmailRegistrations { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -374,9 +376,8 @@ namespace Repositories
                     .HasMaxLength(50)
                     .IsUnicode(false);
                 entity.Property(e => e.Name).HasMaxLength(50);
-                entity.Property(e => e.Password)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.Password).HasMaxLength(255).IsUnicode(false);
+
                 entity.Property(e => e.Phone)
                     .HasMaxLength(10)
                     .IsUnicode(false);
@@ -448,6 +449,25 @@ namespace Repositories
                 entity.Property(e => e.Url)
                     .HasMaxLength(200);
             });
+
+            // ---------------- PENDING EMAIL REGISTRATION ----------------
+            modelBuilder.Entity<PendingEmailRegistration>(entity =>
+            {
+                entity.HasKey(e => e.Id).HasName("PK__PendingEmailRegistration");
+                entity.ToTable("PendingEmailRegistration");
+
+                entity.Property(e => e.Name).HasMaxLength(50);
+                entity.Property(e => e.Email).HasMaxLength(50).IsUnicode(false);
+                entity.Property(e => e.PasswordHash).HasMaxLength(255).IsUnicode(false);
+
+                entity.Property(e => e.OtpHash).HasMaxLength(128).IsUnicode(false);
+                entity.Property(e => e.CreatedAtUtc).HasColumnType("datetime");
+                entity.Property(e => e.ExpiresAtUtc).HasColumnType("datetime");
+                entity.Property(e => e.LastSentAtUtc).HasColumnType("datetime");
+
+                entity.HasIndex(e => e.Email);
+            });
+
 
 
             OnModelCreatingPartial(modelBuilder);
