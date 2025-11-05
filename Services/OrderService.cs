@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Repositories.Basic;
 using Repositories.DTOs;
 using Repositories.Entities;
@@ -73,10 +74,185 @@ namespace Services
             }
             order.Status = status.ToString();
             order.UpdatedDate = (int)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            //order.UpdatedDate = DateTime.Now;
             var numberValid = await _unitOfWork.OrderRepository.UpdateAsync(order);
             return numberValid > 0;
         }
+
+        private async Task<ProductVariant?> GetVariantWithSizesAndProductAsync(int variantId)
+        {
+            return await _unitOfWork.ProductVariantRepository.GetByAsync(
+                pv => pv.Id == variantId,
+                q => q.Include(pv => pv.Sizes)
+                      .Include(pv => pv.Product)
+            );
+        }
+
+        public async Task<bool> AddProductToOrderAsync(int orderId, AddOrderItemDTO addOrderItem)
+        {
+            var order = await _unitOfWork.OrderRepository.GetByAsync(
+                o => o.Id == orderId,
+                q => q.Include(o => o.Items)
+                      .ThenInclude(i => i.ProductVariant)
+                          .ThenInclude(pv => pv.Sizes)
+                      .Include(o => o.Items)
+                      .ThenInclude(i => i.ProductVariant)
+                          .ThenInclude(pv => pv.Product)
+            );
+            if (order == null) return false;
+
+            var existingItem = order.Items.FirstOrDefault(i =>
+                i.ProductVariantId == addOrderItem.ProductVariantId &&
+                i.SizeId == addOrderItem.SizeId
+            );
+
+            ProductVariant variant;
+            if (existingItem != null)
+                variant = existingItem.ProductVariant;
+            else
+            {
+                variant = await GetVariantWithSizesAndProductAsync(addOrderItem.ProductVariantId);
+                if (variant == null) return false;
+            }
+
+            int availableStock;
+            if (addOrderItem.SizeId == null)
+            {
+                if (!variant.StockQuantity.HasValue) return false;
+                availableStock = variant.StockQuantity.Value;
+            }
+            else
+            {
+                var size = variant.Sizes.FirstOrDefault(s => s.Id == addOrderItem.SizeId && s.ProductVariantId == variant.Id);
+                if (size == null) return false;
+                availableStock = size.StockQuantity;
+            }
+
+            if (addOrderItem.Quantity <= 0 || addOrderItem.Quantity > availableStock)
+                return false;
+
+            if (addOrderItem.SizeId == null)
+                variant.StockQuantity -= addOrderItem.Quantity;
+            else
+            {
+                var size = variant.Sizes.First(s => s.Id == addOrderItem.SizeId && s.ProductVariantId == variant.Id);
+                size.StockQuantity -= addOrderItem.Quantity;
+            }
+
+            if (existingItem != null)
+                existingItem.Quantity += addOrderItem.Quantity;
+            else
+            {
+                var newItem = new OrderItem
+                {
+                    ProductVariantId = addOrderItem.ProductVariantId,
+                    SizeId = addOrderItem.SizeId,
+                    Quantity = addOrderItem.Quantity,
+                    OrderId = order.Id,
+                    ProductVariant = variant
+                };
+                order.Items.Add(newItem);
+            }
+
+            order.Total = Math.Round(order.Items.Sum(i => i.Quantity * i.ProductVariant.Product.Price), 2);
+
+            await _unitOfWork.SaveChangesWithTransactionAsync();
+            return true;
+        }
+
+        public async Task<bool> RemoveProductFromOrderAsync(int orderId, RemoveOrderItemDTO removeOrderItem)
+        {
+            var order = await _unitOfWork.OrderRepository.GetByAsync(
+                o => o.Id == orderId,
+                q => q.Include(o => o.Items)
+                      .ThenInclude(i => i.ProductVariant)
+                          .ThenInclude(pv => pv.Sizes)
+                      .Include(o => o.Items)
+                      .ThenInclude(i => i.ProductVariant)
+                          .ThenInclude(pv => pv.Product)
+            );
+            if (order == null) return false;
+
+            var item = order.Items.FirstOrDefault(i =>
+                i.ProductVariantId == removeOrderItem.ProductVariantId &&
+                i.SizeId == removeOrderItem.SizeId
+            );
+            if (item == null) return false;
+
+            var variant = item.ProductVariant;
+
+            if (item.SizeId == null)
+            {
+                if (!variant.StockQuantity.HasValue) return false;
+                variant.StockQuantity += item.Quantity;
+            }
+            else
+            {
+                var size = variant.Sizes.FirstOrDefault(s => s.Id == item.SizeId && s.ProductVariantId == variant.Id);
+                if (size == null) return false;
+                size.StockQuantity += item.Quantity;
+            }
+
+            order.Items.Remove(item);
+            order.Total = Math.Round(order.Items.Sum(i => i.Quantity * i.ProductVariant.Product.Price), 2);
+
+            await _unitOfWork.SaveChangesWithTransactionAsync();
+            return true;
+        }
+
+        public async Task<bool> UpdateProductQuantityInOrderAsync(int orderId, UpdateOrderItemQuantityDTO updateOrderItemQuantity)
+        {
+            var order = await _unitOfWork.OrderRepository.GetByAsync(
+                o => o.Id == orderId,
+                q => q.Include(o => o.Items)
+                      .ThenInclude(i => i.ProductVariant)
+                          .ThenInclude(pv => pv.Sizes)
+                      .Include(o => o.Items)
+                      .ThenInclude(i => i.ProductVariant)
+                          .ThenInclude(pv => pv.Product)
+            );
+            if (order == null) return false;
+
+            var item = order.Items.FirstOrDefault(i =>
+                i.ProductVariantId == updateOrderItemQuantity.ProductVariantId &&
+                i.SizeId == updateOrderItemQuantity.SizeId
+            );
+            if (item == null) return false;
+
+            var variant = item.ProductVariant;
+
+            int availableStock;
+            if (item.SizeId == null)
+            {
+                if (!variant.StockQuantity.HasValue) return false;
+                availableStock = variant.StockQuantity.Value;
+            }
+            else
+            {
+                var size = variant.Sizes.FirstOrDefault(s => s.Id == item.SizeId && s.ProductVariantId == variant.Id);
+                if (size == null) return false;
+                availableStock = size.StockQuantity;
+            }
+
+            if (updateOrderItemQuantity.NewQuantity <= 0 || updateOrderItemQuantity.NewQuantity > (availableStock + item.Quantity))
+                return false;
+
+            int change = updateOrderItemQuantity.NewQuantity - item.Quantity;
+            if (item.SizeId == null)
+                variant.StockQuantity -= change;
+            else
+            {
+                var size = variant.Sizes.First(s => s.Id == item.SizeId && s.ProductVariantId == variant.Id);
+                size.StockQuantity -= change;
+            }
+
+            item.Quantity = updateOrderItemQuantity.NewQuantity;
+            order.Total = Math.Round(order.Items.Sum(i => i.Quantity * i.ProductVariant.Product.Price), 2);
+
+            await _unitOfWork.SaveChangesWithTransactionAsync();
+            return true;
+        }
+
+
 
         //Lấy tất cả đơn hàng của người dùng theo userId
         //public async Task<IEnumerable<Order>> GetAllOrdersByUserIdAsync(int userId)
