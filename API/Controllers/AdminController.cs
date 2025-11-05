@@ -174,6 +174,8 @@ namespace API.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPut("orders/{orderId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateOrder([FromRoute] int orderId, [FromQuery] OrderStatusEnum orderStatusEnum)
         {
             try 
@@ -184,6 +186,72 @@ namespace API.Controllers
                     return BadRequest(new { isSuccess = false, message = "Cập nhật thất bại" });
                 }
                 return Ok(new { isSuccess = true, message = "Cập nhật thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPost("orders/{orderId}/items")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AddOrderItem([FromRoute] int orderId, [FromBody] AddOrderItemDTO addOrderItemDTO)
+        {
+            try 
+            {
+                var result = await _orderService.AddProductToOrderAsync(orderId, addOrderItemDTO);
+                if (!result)
+                {
+                    return BadRequest(new { isSuccess = false, message = "Thêm thất bại" });
+                }
+                return Ok(new { isSuccess = true, message = "Thêm thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("orders/{orderId}/items")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateOrderItem([FromRoute] int orderId, [FromBody] UpdateOrderItemQuantityDTO updateOrderItemDTO)
+        {
+            try 
+            {
+                var result = await _orderService.UpdateProductQuantityInOrderAsync(orderId, updateOrderItemDTO);
+                if (!result)
+                {
+                    return BadRequest(new { isSuccess = false, message = "Cập nhật thất bại" });
+                }
+                return Ok(new { isSuccess = true, message = "Cập nhật thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { isSuccess = false, message = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("orders/{orderId}/items")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RemoveOrderItem([FromRoute] int orderId, [FromBody] RemoveOrderItemDTO removeOrderItemDTO)
+        {
+            try
+            {
+                var result = await _orderService.RemoveProductFromOrderAsync(orderId, removeOrderItemDTO);
+                if (!result)
+                {
+                    return BadRequest(new { isSuccess = false, message = "Xóa sản phẩm khỏi đơn hàng thất bại" });
+                }
+                return Ok(new { isSuccess = true, message = "Xóa sản phẩm khỏi đơn hàng thành công" });
             }
             catch (Exception ex)
             {

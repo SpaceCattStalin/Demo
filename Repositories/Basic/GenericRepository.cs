@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Repositories.Basic
 {
@@ -134,6 +135,18 @@ namespace Repositories.Basic
         public async Task<T> GetByIdAsync(Guid code)
         {
             return await _context.Set<T>().FindAsync(code);
+        }
+
+        public async Task<T?> GetByAsync(
+            Expression<Func<T, bool>> predicate,
+            Func<IQueryable<T>, IQueryable<T>>? include = null)
+        {
+            IQueryable<T> query = _context.Set<T>();
+
+            if (include != null)
+                query = include(query);
+
+            return await query.FirstOrDefaultAsync(predicate);
         }
 
         #region Separating asigned entity and save operators        

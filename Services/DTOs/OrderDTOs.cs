@@ -77,4 +77,23 @@ namespace Services.DTOs
         public string? ImageUrl { get; set; }
     }
 
+    public class AddOrderItemDTO
+    {
+        public int ProductVariantId { get; set; }
+        public int? SizeId { get; set; }
+        public int Quantity { get; set; }
+    }
+
+    public class UpdateOrderItemQuantityDTO
+    {
+        public int ProductVariantId { get; set; }
+        public int? SizeId { get; set; }
+        public int NewQuantity { get; set; }
+    }
+
+    public class RemoveOrderItemDTO
+    {
+        public int ProductVariantId { get; set; }
+        public int? SizeId { get; set; }
+    }
 }
