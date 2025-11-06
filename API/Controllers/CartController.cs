@@ -15,10 +15,12 @@ namespace API.Controllers
     {
         private readonly CartService _cartService;
         private readonly IMapper _mapper;
-        public CartController(CartService cartService, IMapper mapper)
+        private readonly PaymentService _paymentService;
+        public CartController(CartService cartService, IMapper mapper, PaymentService paymentService)
         {
             _cartService = cartService;
             _mapper = mapper;
+            _paymentService = paymentService;
         }
 
         [HttpGet]
@@ -187,6 +189,13 @@ namespace API.Controllers
             //    return Forbid();
             //}
             //return Ok();
+        }
+
+        [HttpGet("payment-methods")]
+        public async Task<IActionResult> GetAllPaymentMethods()
+        {
+            var methods = await _paymentService.GetAllMethods();
+            return Ok(methods);
         }
 
         [Authorize]

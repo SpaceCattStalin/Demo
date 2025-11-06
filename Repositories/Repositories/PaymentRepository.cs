@@ -82,6 +82,13 @@ namespace Repositories.Repositories
             }
         }
 
+        public async Task<List<PaymentMethod>> GetAllPaymentMethods()
+        {
+            var methods = await _context.PaymentMethods.ToListAsync();
+
+            return methods;
+        }
+
         public async Task<AdminPaymentStatisticDto> GetPaymentStatisticsAsync(
             int? fromDate = null, int? toDate = null
             )

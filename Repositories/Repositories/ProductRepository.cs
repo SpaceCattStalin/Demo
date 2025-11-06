@@ -88,6 +88,23 @@ namespace Repositories.Repositories
                 throw new Exception(ex.Message);
             }
         }
+        public async Task<List<Product>> GetRecommendedProductsAsync(int productId, int count = 15)
+        {
+            var query = _context.Products
+                .Include(p => p.Images.Where(i => i.IsPrimary))
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Images)
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Sizes)
+                        .ThenInclude(sz => sz.Size)
+                .AsQueryable();
+
+            return await query
+                .Where(p => p.Id != productId)
+                .OrderBy(p => Guid.NewGuid())
+                .Take(count)
+                .ToListAsync();
+        }
 
 
         public async Task<PaginationResult<Product>> GetAllProductsByCategory(

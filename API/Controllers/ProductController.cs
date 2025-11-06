@@ -98,6 +98,14 @@ namespace API.Controllers
 
             return Ok(images);
         }
+        [HttpGet("{productId}/recommendations")]
+        public async Task<IActionResult> GetRecommendations(int productId)
+        {
+            var result = await _productService.GetRecommendedProductsAsync(productId);
+            var mapped = _mapper.Map<List<ProductModel>>(result);
+
+            return Ok(mapped);
+        }
 
         //[HttpPost]
         //public async Task<ActionResult> AddProduct([FromBody] Services.DTOs.CreateProductModel productModel)

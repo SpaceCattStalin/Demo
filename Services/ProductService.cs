@@ -176,5 +176,10 @@ namespace Services
 
             return sizes;
         }
+
+        public async Task<List<Product>> GetRecommendedProductsAsync(int productId)
+        {
+            return await _unitOfWork.ProductRepository.GetRecommendedProductsAsync(productId);
+        }
     }
 }

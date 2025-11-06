@@ -65,6 +65,11 @@ namespace Services
             return await _unitOfWork.PaymentRepository.GetPaymentStatisticsAsync(fromDate, toDate);
         }
 
+        public async Task<List<PaymentMethod>> GetAllMethods()
+        {
+            return await _unitOfWork.PaymentRepository.GetAllPaymentMethods();
+        }
+
         //Lấy thông tin tất cả thanh toán theo UserId
         //public async Task<IEnumerable<Payment>> GetAllPaymentsByUserIdAsync(int userId)
         //{

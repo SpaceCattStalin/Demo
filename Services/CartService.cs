@@ -22,7 +22,7 @@ namespace Services
         {
             var cart = await _unitOfWork.CartRepository.GetCart(userId);
 
-            if (cart == null)
+            if (cart != null)
             {
                 throw new Exception("Cart đã tồn tại");
             }
