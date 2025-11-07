@@ -169,6 +169,8 @@ using (var scope = app.Services.CreateScope())
 //var seeder = scope.ServiceProvider.GetRequiredService<Seeder>();
 //await seeder.Seed();
 
+app.UseCors("AllowAll");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
